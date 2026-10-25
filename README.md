@@ -14,22 +14,24 @@ Pendiente en las siguientes entregas: órdenes de trabajo, inventario con escán
 ## Puesta en marcha
 
 1. Crea un proyecto en [Supabase](https://supabase.com).
-2. En **SQL Editor**, ejecuta en orden:
-   - `supabase/migrations/20261024000000_esquema.sql` (tablas, reglas, vistas y permisos)
-   - `supabase/seed.sql` (sucursal, bahías y catálogo de servicios de ejemplo; ajústalos a tu taller)
-3. En **Authentication → Users** crea a tu equipo. Luego asigna rol y sucursal a cada persona con el bloque comentado al final de `seed.sql`. Sin ese paso la persona puede entrar pero verá “Tu cuenta aún no tiene rol”.
-4. Para cada técnico registra su turno en `horarios_tecnico` (también en `seed.sql`). Sin turno no aparecerá en los horarios libres.
-5. Copia `.env.example` a `.env.local` y pon la URL y la anon key de tu proyecto (Project Settings → API).
-6. Instala y arranca:
+2. Abre **SQL Editor → New query**, pega todo `supabase/instalar.sql` y pulsa **Run**. Crea tablas, reglas, permisos y un catálogo de ejemplo (sucursal “Matriz”, bahías y servicios; ajústalos a tu taller). Se ejecuta una sola vez.
+   Si prefieres la CLI de Supabase, `supabase db push` aplica las migraciones de `supabase/migrations/` y `seed.sql` hace lo mismo.
+3. En **Authentication → Users → Add user** crea tu usuario con “Auto Confirm User”. **La primera persona registrada queda como administradora** automáticamente.
+4. Da de alta al resto del equipo: crea cada usuario en Authentication y asígnale rol y sucursal con el bloque comentado al final de `seed.sql`. Sin ese paso la persona puede entrar pero verá “Tu cuenta aún no tiene rol”.
+5. Para cada técnico registra su turno en `horarios_tecnico` (también en `seed.sql`). Sin turno no aparece en los horarios libres de la agenda.
+6. Variables de entorno (Project Settings → API Keys):
 
-   ```bash
-   npm install
-   npm run dev
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://<tu-proyecto>.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=<publishable key o anon key>
    ```
 
-   Abre http://localhost:3000.
+   En local van en `.env.local`. En Vercel, en Settings → Environment Variables.
+7. Para probar en tu computadora: `npm install` y `npm run dev`, luego abre http://localhost:3000.
 
-Para publicarlo, despliega el repositorio en Vercel con las mismas dos variables de entorno.
+### Publicar en Vercel
+
+En [vercel.com/new](https://vercel.com/new) importa este repositorio, agrega las dos variables de entorno y pulsa **Deploy**. Después, en Supabase → Authentication → URL Configuration, pon la dirección que te dé Vercel como Site URL.
 
 ## Estructura
 
