@@ -18,7 +18,10 @@ Sistema de gestión para taller mecánico y detailing: clientes y vehículos, ag
 - **Compras**: proveedores con los artículos que venden y su costo, alertas de stock bajo, pedidos sugeridos automáticos por proveedor preferido, envío por WhatsApp o correo y recepción escaneando (entrada al kardex con factura y costo promedio).
 - **Equipo**: dar rol, sucursal y turno a las cuentas creadas en Supabase Authentication, sin SQL. La agenda solo ofrece horarios de técnicos con turno.
 
-Pendiente en las siguientes entregas: recordatorios automáticos por WhatsApp/SMS/email y tablero de KPI. La base de datos de todo eso ya está en la migración.
+- **Mensajes**: recordatorios de servicio por fecha o kilometraje, confirmación de citas de mañana y aviso de vehículo listo con un clic (WhatsApp, SMS o correo con el texto listo); todo queda en la bitácora del cliente. Plantillas editables, segmentos de clientes y campañas.
+- **Reportes**: ingresos, utilidad y ticket con comparación contra el periodo anterior, ingresos por día, utilidad por tipo de servicio, tiempos de estadía, eficiencia de técnicos, retención y gasto por cliente, rotación e inventario parado.
+
+Opcional más adelante: envío automático de mensajes conectando WhatsApp Business (Twilio) o correo (Resend) con una Edge Function.
 
 ## Puesta en marcha
 

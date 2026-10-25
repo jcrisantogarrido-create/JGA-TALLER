@@ -13,11 +13,8 @@ const ENLACES: { href: string; texto: string; roles: Rol[] }[] = [
   { href: "/kardex", texto: "Kardex", roles: ["admin", "gerente", "recepcion", "tecnico"] },
   { href: "/comunicacion", texto: "Mensajes", roles: ["admin", "gerente", "recepcion"] },
   { href: "/compras", texto: "Compras", roles: ["admin", "gerente"] },
+  { href: "/reportes", texto: "Reportes", roles: ["admin", "gerente"] },
   { href: "/equipo", texto: "Equipo", roles: ["admin", "gerente"] },
-];
-
-const PROXIMOS: { texto: string; roles: Rol[] }[] = [
-  { texto: "Reportes", roles: ["admin", "gerente"] },
 ];
 
 export default function Nav({ rol }: { rol: Rol }) {
@@ -29,11 +26,6 @@ export default function Nav({ rol }: { rol: Rol }) {
         <Link key={e.href} href={e.href} aria-current={activo(e.href) ? "page" : undefined}>
           {e.texto}
         </Link>
-      ))}
-      {PROXIMOS.filter((e) => e.roles.includes(rol)).map((e) => (
-        <span key={e.texto} className="soon">
-          {e.texto} <small>pronto</small>
-        </span>
       ))}
     </nav>
   );

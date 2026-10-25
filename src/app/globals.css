@@ -215,3 +215,19 @@ table.kardex tfoot td { font-weight: 600; background: var(--bg); border-top: 2px
 .chip.parcial { background: var(--warn-soft); color: var(--warn); }
 .chip.recibida { background: var(--ok-soft); color: var(--ok); }
 input.mini { width: 90px; }
+
+/* Reportes */
+.stat small { font-size: 12px; }
+.barras { display: grid; gap: 6px; }
+.barra { display: grid; grid-template-columns: minmax(90px, 34%) 1fr auto; gap: 10px; align-items: center; font-size: 13.5px; }
+.barra .et { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barra .pista { height: 12px; display: block; }
+.barra .pista span { display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; min-width: 2px; }
+.barra:hover .pista span { filter: brightness(1.12); }
+.barra .val { color: var(--fg); }
+.columnas { display: flex; gap: 2px; height: 200px; overflow-x: auto; }
+.columnas .col { flex: 1 0 12px; display: flex; flex-direction: column; }
+.columnas .area { flex: 1; display: flex; align-items: flex-end; border-bottom: 1px solid var(--line); }
+.columnas .barra-v { display: block; width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; }
+.columnas .col:hover .barra-v { filter: brightness(1.12); }
+.columnas .et { text-align: center; font-size: 10.5px; color: var(--muted); font-family: var(--font-mono); padding-top: 4px; }
