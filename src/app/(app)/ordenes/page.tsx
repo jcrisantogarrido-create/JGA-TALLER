@@ -9,7 +9,7 @@ import FiltrosAuto from "@/components/FiltrosAuto";
 export const metadata: Metadata = { title: "Órdenes de trabajo" };
 
 type Fila = {
-  id: string; folio: number; estado: EstadoOrden; recibido_en: string; entregado_en: string | null;
+  id: string; folio: number; estado: EstadoOrden; moneda: string; recibido_en: string; entregado_en: string | null;
   clientes: { nombre: string; apellidos: string | null } | null;
   vehiculos: { placa: string; marca: string; modelo: string } | null;
   bahias: { nombre: string } | null;
@@ -32,7 +32,7 @@ export default async function OrdenesPage({
   let consulta = supabase
     .from("ordenes_trabajo")
     .select(
-      "id, folio, estado, recibido_en, entregado_en, clientes(nombre, apellidos), vehiculos!inner(placa, placa_norm, marca, modelo), bahias(nombre), orden_servicios(descripcion, tecnico:perfiles(nombre))",
+      "id, folio, estado, moneda, recibido_en, entregado_en, clientes(nombre, apellidos), vehiculos!inner(placa, placa_norm, marca, modelo), bahias(nombre), orden_servicios(descripcion, tecnico:perfiles(nombre))",
     )
     .eq("sucursal_id", sucursal.id)
     .order("recibido_en", { ascending: false })
@@ -108,8 +108,8 @@ export default async function OrdenesPage({
                     </td>
                     <td><span className={`chip ${o.estado}`}>{ESTADOS_ORDEN[o.estado]}</span></td>
                     <td className="num">{fechaHora(o.recibido_en, tz)}</td>
-                    <td className="num">{dinero(t?.ingreso_total)}</td>
-                    <td className="num" style={{ color: saldo > 0.005 && o.estado !== "cancelada" ? "var(--warn)" : undefined }}>{dinero(saldo)}</td>
+                    <td className="num">{dinero(t?.ingreso_total, o.moneda)}</td>
+                    <td className="num" style={{ color: saldo > 0.005 && o.estado !== "cancelada" ? "var(--warn)" : undefined }}>{dinero(saldo, o.moneda)}</td>
                   </tr>
                 );
               })}

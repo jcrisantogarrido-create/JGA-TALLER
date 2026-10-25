@@ -51,6 +51,10 @@ export async function abrirOrden(_: Estado, f: FormData): Promise<Estado> {
   const checklist: Record<string, boolean> = {};
   f.getAll("checklist").forEach((c) => (checklist[String(c)] = true));
 
+  const moneda = txt(f, "moneda") === "USD" ? "USD" : "PEN";
+  const { data: tc } = await supabase.rpc("tipo_cambio_vigente");
+  if (moneda === "USD" && !tc) return { error: "Para abrir una orden en dólares registra primero el tipo de cambio de hoy (menú Servicios)." };
+
   const { data: orden, error } = await supabase
     .from("ordenes_trabajo")
     .insert({
@@ -64,6 +68,8 @@ export async function abrirOrden(_: Estado, f: FormData): Promise<Estado> {
       nivel_combustible: num(f, "nivel_combustible"),
       inventario_vehiculo: { checklist, observaciones: txt(f, "observaciones") },
       diagnostico: txt(f, "diagnostico") ?? cita?.motivo_cliente ?? null,
+      moneda,
+      tipo_cambio: tc ?? null,
     })
     .select("id")
     .single();
@@ -103,6 +109,8 @@ export async function guardarRecepcion(_: Estado, f: FormData): Promise<Estado> 
   const km = num(f, "kilometraje_ingreso");
   const descuento = num(f, "descuento") ?? 0;
   if (Number.isNaN(km) || Number.isNaN(descuento) || descuento < 0) return { error: "Revisa kilometraje y descuento." };
+  const tc = num(f, "tipo_cambio");
+  if (Number.isNaN(tc) || (tc !== null && tc <= 0)) return { error: "Revisa el tipo de cambio." };
   const checklist: Record<string, boolean> = {};
   f.getAll("checklist").forEach((c) => (checklist[String(c)] = true));
   const supabase = await createClient();
@@ -114,6 +122,7 @@ export async function guardarRecepcion(_: Estado, f: FormData): Promise<Estado> 
       diagnostico: txt(f, "diagnostico"),
       descuento,
       inventario_vehiculo: { checklist, observaciones: txt(f, "observaciones") },
+      ...(tc !== null ? { tipo_cambio: tc } : {}),
     })
     .eq("id", id);
   if (error) return { error: mensajeError(error) };
@@ -242,14 +251,26 @@ export async function retirarPieza(id: string, ordenId: string): Promise<void> {
 export async function registrarPago(_: Estado, f: FormData): Promise<Estado> {
   await requierePerfil(["admin", "gerente", "recepcion"]);
   const ordenId = String(f.get("orden_id"));
-  const monto = num(f, "monto");
-  if (!monto || Number.isNaN(monto)) return { error: "Escribe el monto." };
+  const montoPagado = num(f, "monto");
+  if (!montoPagado || Number.isNaN(montoPagado)) return { error: "Escribe el monto." };
   const supabase = await createClient();
+  const { data: o } = await supabase.from("ordenes_trabajo").select("moneda, tipo_cambio").eq("id", ordenId).maybeSingle();
+  if (!o) return { error: "No se encontró la orden." };
+  // Si pagan en la otra moneda, se convierte a la de la orden con su tipo de cambio
+  const monedaPago = txt(f, "moneda_pago") ?? o.moneda;
+  let monto = montoPagado;
+  if (monedaPago !== o.moneda) {
+    const tc = Number(o.tipo_cambio ?? (await supabase.rpc("tipo_cambio_vigente")).data ?? 0);
+    if (!tc) return { error: "Registra el tipo de cambio (menú Servicios) para cobrar en otra moneda." };
+    monto = Math.round((monedaPago === "USD" ? montoPagado * tc : montoPagado / tc) * 100) / 100;
+  }
   const { error } = await supabase.from("pagos").insert({
     orden_id: ordenId,
     monto,
     metodo: txt(f, "metodo") ?? "efectivo",
     referencia: txt(f, "referencia"),
+    moneda_original: monedaPago !== o.moneda ? monedaPago : null,
+    monto_original: monedaPago !== o.moneda ? montoPagado : null,
   });
   if (error) return { error: mensajeError(error) };
   refrescar(ordenId);

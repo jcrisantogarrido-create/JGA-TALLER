@@ -45,6 +45,7 @@ export async function guardarProveedor(_: Estado, f: FormData): Promise<Estado> 
     direccion: txt(f, "direccion"),
     condiciones_pago: txt(f, "condiciones_pago"),
     dias_entrega: dias,
+    moneda: txt(f, "moneda") === "USD" ? "USD" : "PEN",
     activo: id ? f.get("activo") === "on" : true,
   };
   const supabase = await createClient();
@@ -112,9 +113,12 @@ export async function crearPedido(_: Estado, f: FormData): Promise<Estado> {
   const proveedorId = txt(f, "proveedor_id");
   if (!proveedorId) return { error: "Elige el proveedor." };
   const supabase = await createClient();
+  const { data: prov } = await supabase.from("proveedores").select("moneda").eq("id", proveedorId).maybeSingle();
+  const { data: tc } = await supabase.rpc("tipo_cambio_vigente");
+  if (prov?.moneda === "USD" && !tc) return { error: "Este proveedor factura en dólares: registra primero el tipo de cambio de hoy (menú Servicios)." };
   const { data, error } = await supabase
     .from("ordenes_compra")
-    .insert({ proveedor_id: proveedorId, sucursal_id: String(f.get("sucursal_id")), creada_por: perfil.id })
+    .insert({ proveedor_id: proveedorId, sucursal_id: String(f.get("sucursal_id")), creada_por: perfil.id, moneda: prov?.moneda ?? "PEN", tipo_cambio: tc ?? null })
     .select("id")
     .single();
   if (error) return { error: mensajeError(error) };
@@ -135,7 +139,12 @@ export async function guardarPedido(_: Estado, f: FormData): Promise<Estado> {
   await gestion();
   const id = String(f.get("id"));
   const supabase = await createClient();
-  const { error } = await supabase.from("ordenes_compra").update({ fecha_esperada: txt(f, "fecha_esperada"), notas: txt(f, "notas") }).eq("id", id);
+  const tc = num(f, "tipo_cambio");
+  if (Number.isNaN(tc) || (tc !== null && tc <= 0)) return { error: "Revisa el tipo de cambio." };
+  const { error } = await supabase
+    .from("ordenes_compra")
+    .update({ fecha_esperada: txt(f, "fecha_esperada"), notas: txt(f, "notas"), ...(tc !== null ? { tipo_cambio: tc } : {}) })
+    .eq("id", id);
   if (error) return { error: mensajeError(error) };
   refrescar(id);
   return { ok: "Pedido guardado." };

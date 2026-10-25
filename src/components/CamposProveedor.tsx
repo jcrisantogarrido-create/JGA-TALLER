@@ -1,3 +1,5 @@
+import { MONEDAS } from "@/lib/tipos";
+
 // Campos del formulario de proveedor (alta y edición)
 export default function CamposProveedor({ p = {} }: { p?: Record<string, unknown> }) {
   const v = (k: string) => (p[k] == null ? "" : String(p[k]));
@@ -9,6 +11,12 @@ export default function CamposProveedor({ p = {} }: { p?: Record<string, unknown
       <div className="field"><label htmlFor="pv-tel">Teléfono / WhatsApp</label><input id="pv-tel" name="telefono" type="tel" defaultValue={v("telefono")} /></div>
       <div className="field"><label htmlFor="pv-email">Correo</label><input id="pv-email" name="email" type="email" defaultValue={v("email")} /></div>
       <div className="field"><label htmlFor="pv-pago">Condiciones de pago</label><input id="pv-pago" name="condiciones_pago" defaultValue={v("condiciones_pago")} placeholder="Contado, 30 días…" /></div>
+      <div className="field">
+        <label htmlFor="pv-mon">Nos factura en</label>
+        <select id="pv-mon" name="moneda" defaultValue={v("moneda") || "PEN"}>
+          {Object.entries(MONEDAS).map(([k, t]) => <option key={k} value={k}>{t}</option>)}
+        </select>
+      </div>
       <div className="field"><label htmlFor="pv-dias">Días de entrega</label><input id="pv-dias" name="dias_entrega" inputMode="numeric" defaultValue={v("dias_entrega")} placeholder="2" /></div>
       <div className="field wide"><label htmlFor="pv-dir">Dirección</label><input id="pv-dir" name="direccion" defaultValue={v("direccion")} /></div>
     </div>

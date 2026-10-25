@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { requierePerfil, sucursalActiva } from "@/lib/sesion";
-import { CHECKLIST_RECEPCION, ESTADOS_ORDEN, ESTADOS_TECNICO, METODOS_PAGO, TRANSICIONES_ORDEN, type EstadoOrden } from "@/lib/tipos";
+import { CHECKLIST_RECEPCION, ESTADOS_ORDEN, MONEDAS, type Moneda, ESTADOS_TECNICO, METODOS_PAGO, TRANSICIONES_ORDEN, type EstadoOrden } from "@/lib/tipos";
 import { dinero, fechaHora } from "@/lib/fechas";
 import FormSimple from "@/components/FormSimple";
 import AgregarPieza from "@/components/AgregarPieza";
@@ -61,7 +61,7 @@ export default async function OrdenPage({
   if (!orden) notFound();
   const o = orden as unknown as {
     id: string; folio: number; sucursal_id: string; cita_id: string | null; estado: EstadoOrden;
-    kilometraje_ingreso: number | null; nivel_combustible: number | null; diagnostico: string | null; descuento: number;
+    kilometraje_ingreso: number | null; nivel_combustible: number | null; diagnostico: string | null; descuento: number; moneda: Moneda; tipo_cambio: number | null;
     recibido_en: string; iniciado_en: string | null; terminado_en: string | null; entregado_en: string | null;
     clientes: { id: string; nombre: string; apellidos: string | null; telefono: string | null } | null;
     vehiculos: { id: string; placa: string; marca: string; modelo: string; anio: number; kilometraje_actual: number | null } | null;
@@ -80,18 +80,21 @@ export default async function OrdenPage({
       .eq("orden_id", id)
       .order("created_at"),
     supabase.from("v_orden_totales").select("*").eq("orden_id", id).maybeSingle(),
-    gestiona ? supabase.from("pagos").select("id, monto, metodo, referencia, created_at, perfiles(nombre)").eq("orden_id", id).order("created_at") : Promise.resolve({ data: [] }),
-    gestiona ? supabase.from("servicios").select("id, nombre, precio_base").eq("activo", true).order("nombre") : Promise.resolve({ data: [] }),
+    gestiona ? supabase.from("pagos").select("id, monto, metodo, referencia, created_at, moneda_original, monto_original, perfiles(nombre)").eq("orden_id", id).order("created_at") : Promise.resolve({ data: [] }),
+    gestiona ? supabase.from("servicios").select("id, nombre, precio_base, moneda").eq("activo", true).order("nombre") : Promise.resolve({ data: [] }),
     gestiona ? supabase.from("categorias_servicio").select("id, nombre").order("nombre") : Promise.resolve({ data: [] }),
     gestiona ? supabase.from("perfiles").select("id, nombre").eq("rol", "tecnico").eq("activo", true).order("nombre") : Promise.resolve({ data: [] }),
     supabase.from("ubicaciones").select("id, codigo").eq("sucursal_id", o.sucursal_id).eq("activa", true).order("codigo"),
   ]);
   const trabajos = (trabajosData as unknown as Trabajo[]) ?? [];
-  const t = totales as { ingreso_mano_obra: number; ingreso_piezas: number; ingreso_total: number; costo_mano_obra: number; costo_piezas: number; horas_reales: number; pagado: number } | null;
+  const t = totales as { ingreso_mano_obra: number; ingreso_piezas: number; ingreso_total: number; ingreso_total_pen: number; costo_mano_obra: number; costo_piezas: number; horas_reales: number; pagado: number } | null;
   const tz = o.sucursales?.zona_horaria ?? (await sucursalActiva(perfil))?.zona_horaria ?? "America/Lima";
   const cerrada = o.estado === "entregada" || o.estado === "cancelada";
   const saldo = Number(t?.ingreso_total ?? 0) - Number(t?.pagado ?? 0);
   const costo = Number(t?.costo_mano_obra ?? 0) + Number(t?.costo_piezas ?? 0);
+  const M = o.moneda;
+  const $ = (n: number | string | null | undefined) => dinero(n, M);
+  const ingresoPen = Number(t?.ingreso_total_pen ?? 0);
 
   let acciones = TRANSICIONES_ORDEN[o.estado];
   if (!gestiona) acciones = acciones.filter((e) => ESTADOS_TECNICO.includes(e));
@@ -112,7 +115,10 @@ export default async function OrdenPage({
             {gestiona && o.clientes?.telefono && <span className="num"> · {o.clientes.telefono}</span>}
           </p>
         </div>
-        <span className={`chip ${o.estado}`} style={{ fontSize: 14 }}>{ESTADOS_ORDEN[o.estado]}</span>
+        <span className="row">
+          {M === "USD" && <span className="chip">En dólares</span>}
+          <span className={`chip ${o.estado}`} style={{ fontSize: 14 }}>{ESTADOS_ORDEN[o.estado]}</span>
+        </span>
       </div>
 
       {error && <div className="alert error" role="alert">{MENSAJES[error] ?? error}</div>}
@@ -138,7 +144,7 @@ export default async function OrdenPage({
         </div>
       )}
       {o.estado === "terminada" && saldo > 0.005 && gestiona && (
-        <div className="alert error">Falta cobrar {dinero(saldo)} antes de entregar.</div>
+        <div className="alert error">Falta cobrar {$(saldo)} antes de entregar.</div>
       )}
 
       <section className="panel">
@@ -159,12 +165,12 @@ export default async function OrdenPage({
                   {tr.completado_en && <span className="chip terminada">Hecho</span>}
                   {gestiona && !tr.aprobado && <span className="chip esperando_aprobacion">Sin aprobar</span>}
                 </div>
-                {gestiona && <span className="num">{dinero(Number(tr.precio) + piezas)}</span>}
+                {gestiona && <span className="num">{$(Number(tr.precio) + piezas)}</span>}
               </header>
               <div className="meta muted row" style={{ fontSize: 13 }}>
                 <span>{tr.tecnico?.nombre ?? "Sin técnico"}</span>
                 <span className="num">Horas reales {horasReales.toFixed(2)} / cobradas {Number(tr.horas_cobradas).toFixed(2)}</span>
-                {gestiona && <span className="num">Mano de obra {dinero(tr.precio)}</span>}
+                {gestiona && <span className="num">Mano de obra {$(tr.precio)}</span>}
                 {otroCorriendo && <span className="reloj corriendo">Reloj encendido</span>}
               </div>
               <div className="row">
@@ -193,7 +199,7 @@ export default async function OrdenPage({
                       <div className="row" style={{ justifyContent: "space-between" }}>
                         <span>{p.articulos?.nombre} <span className="muted mono">×{Number(p.cantidad)} {p.articulos?.unidad} · {p.ubicaciones?.codigo}</span></span>
                         <span className="row">
-                          {gestiona && <span className="num">{dinero(Number(p.cantidad) * Number(p.precio_unitario ?? 0))}</span>}
+                          {gestiona && <span className="num">{$(Number(p.cantidad) * Number(p.precio_unitario ?? 0))}</span>}
                           {finanzas && !cerrada && (
                             <form action={retirarPieza.bind(null, p.id, o.id)}>
                               <button className="btn small" type="submit" title="Devuelve la pieza al inventario">Devolver</button>
@@ -255,7 +261,7 @@ export default async function OrdenPage({
                     <label htmlFor="n-serv">Del catálogo</label>
                     <select id="n-serv" name="servicio_id" defaultValue="">
                       <option value="">Otro (descríbelo)</option>
-                      {(servicios as { id: string; nombre: string; precio_base: number }[] ?? []).map((s) => <option key={s.id} value={s.id}>{s.nombre} · {dinero(s.precio_base)}</option>)}
+                      {(servicios as { id: string; nombre: string; precio_base: number; moneda: Moneda }[] ?? []).map((s) => <option key={s.id} value={s.id}>{s.nombre} · {dinero(s.precio_base, s.moneda)}</option>)}
                     </select>
                   </div>
                   <div className="field">
@@ -312,28 +318,29 @@ export default async function OrdenPage({
           <section className="panel">
             <h2>Cuenta</h2>
             <dl className="totales">
-              <dt>Mano de obra</dt><dd>{dinero(t?.ingreso_mano_obra)}</dd>
-              <dt>Piezas</dt><dd>{dinero(t?.ingreso_piezas)}</dd>
-              {Number(o.descuento) > 0 && (<><dt>Descuento</dt><dd>−{dinero(o.descuento)}</dd></>)}
-              <dt>Total</dt><dd className="grande">{dinero(t?.ingreso_total)}</dd>
-              <dt>Pagado</dt><dd>{dinero(t?.pagado)}</dd>
-              <dt>Saldo</dt><dd style={{ color: saldo > 0.005 ? "var(--warn)" : "var(--ok)", fontWeight: 600 }}>{dinero(saldo)}</dd>
+              <dt>Mano de obra</dt><dd>{$(t?.ingreso_mano_obra)}</dd>
+              <dt>Piezas</dt><dd>{$(t?.ingreso_piezas)}</dd>
+              {Number(o.descuento) > 0 && (<><dt>Descuento</dt><dd>−{$(o.descuento)}</dd></>)}
+              <dt>Total</dt><dd className="grande">{$(t?.ingreso_total)}</dd>
+              {M === "USD" && (<><dt>En soles (TC {Number(o.tipo_cambio).toFixed(3)})</dt><dd>{dinero(ingresoPen)}</dd></>)}
+              <dt>Pagado</dt><dd>{$(t?.pagado)}</dd>
+              <dt>Saldo</dt><dd style={{ color: saldo > 0.005 ? "var(--warn)" : "var(--ok)", fontWeight: 600 }}>{$(saldo)}</dd>
             </dl>
             {finanzas && (
               <dl className="totales" style={{ fontSize: 13.5, borderTop: "1px solid var(--line)", paddingTop: 10 }}>
                 <dt>Costo de piezas</dt><dd>{dinero(t?.costo_piezas)}</dd>
                 <dt>Costo de mano de obra ({Number(t?.horas_reales ?? 0).toFixed(2)} h)</dt><dd>{dinero(t?.costo_mano_obra)}</dd>
-                <dt>Utilidad</dt>
-                <dd>{dinero(Number(t?.ingreso_total ?? 0) - costo)}{Number(t?.ingreso_total) > 0 && <span className="muted"> · {Math.round(((Number(t?.ingreso_total) - costo) / Number(t?.ingreso_total)) * 100)}%</span>}</dd>
+                <dt>Utilidad{M === "USD" ? " (en soles)" : ""}</dt>
+                <dd>{dinero(ingresoPen - costo)}{ingresoPen > 0 && <span className="muted"> · {Math.round(((ingresoPen - costo) / ingresoPen) * 100)}%</span>}</dd>
               </dl>
             )}
             {(pagos ?? []).length > 0 && (
               <ul className="list">
-                {(pagos as unknown as { id: string; monto: number; metodo: keyof typeof METODOS_PAGO; referencia: string | null; created_at: string; perfiles: { nombre: string } | null }[]).map((p) => (
+                {(pagos as unknown as { id: string; monto: number; metodo: keyof typeof METODOS_PAGO; referencia: string | null; created_at: string; moneda_original: Moneda | null; monto_original: number | null; perfiles: { nombre: string } | null }[]).map((p) => (
                   <li key={p.id}>
                     <div className="row" style={{ justifyContent: "space-between" }}>
                       <span>{METODOS_PAGO[p.metodo]}{p.referencia && <span className="muted"> · {p.referencia}</span>}</span>
-                      <b className="num">{dinero(p.monto)}</b>
+                      <b className="num">{$(p.monto)}{p.moneda_original && <span className="muted" style={{ fontWeight: 400 }}> ({dinero(p.monto_original, p.moneda_original)})</span>}</b>
                     </div>
                     <div className="meta"><span className="num">{fechaHora(p.created_at, tz)}</span>{p.perfiles && <span>{p.perfiles.nombre}</span>}</div>
                   </li>
@@ -349,6 +356,12 @@ export default async function OrdenPage({
                     <input id="pg-monto" name="monto" inputMode="decimal" required defaultValue={saldo > 0.005 ? saldo.toFixed(2) : ""} />
                   </div>
                   <div className="field">
+                    <label htmlFor="pg-mon">Moneda</label>
+                    <select id="pg-mon" name="moneda_pago" defaultValue={M}>
+                      {Object.entries(MONEDAS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    </select>
+                  </div>
+                  <div className="field">
                     <label htmlFor="pg-met">Método</label>
                     <select id="pg-met" name="metodo" defaultValue="efectivo">
                       {Object.entries(METODOS_PAGO).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -361,7 +374,7 @@ export default async function OrdenPage({
                 </div>
               </FormSimple>
             )}
-            <p className="muted" style={{ fontSize: 13 }}>Para un reembolso escribe el monto en negativo.</p>
+            <p className="muted" style={{ fontSize: 13 }}>Si pagan en la otra moneda se convierte con el tipo de cambio de la orden. Para un reembolso escribe el monto en negativo.</p>
           </section>
         )}
       </div>
@@ -383,8 +396,14 @@ export default async function OrdenPage({
                   <option value="0">Reserva</option><option value="25">1/4</option><option value="50">1/2</option><option value="75">3/4</option><option value="100">Lleno</option>
                 </select>
               </div>
+              {M === "USD" && (
+                <div className="field">
+                  <label htmlFor="r-tc">Tipo de cambio (S/ por US$)</label>
+                  <input id="r-tc" name="tipo_cambio" inputMode="decimal" defaultValue={o.tipo_cambio ?? ""} />
+                </div>
+              )}
               <div className="field">
-                <label htmlFor="r-desc">Descuento</label>
+                <label htmlFor="r-desc">Descuento ({M === "USD" ? "US$" : "S/"})</label>
                 <input id="r-desc" name="descuento" inputMode="decimal" defaultValue={o.descuento ?? 0} />
               </div>
               <div className="field wide">

@@ -19,6 +19,7 @@ Sistema de gestión para taller mecánico y detailing: clientes y vehículos, ag
 - **Equipo**: dar rol, sucursal y turno a las cuentas creadas en Supabase Authentication, sin SQL. La agenda solo ofrece horarios de técnicos con turno.
 
 - **Mensajes**: recordatorios de servicio por fecha o kilometraje, confirmación de citas de mañana y aviso de vehículo listo con un clic (WhatsApp, SMS o correo con el texto listo); todo queda en la bitácora del cliente. Plantillas editables, segmentos de clientes y campañas.
+- **Servicios y monedas**: catálogo de servicios con precio en soles o dólares, duración, bahía y recordatorio. Tipo de cambio del día; cada orden y pedido de compra se trabaja en S/ o US$ y se convierte a soles para inventario y reportes. Se puede cobrar en la otra moneda.
 - **Reportes**: ingresos, utilidad y ticket con comparación contra el periodo anterior, ingresos por día, utilidad por tipo de servicio, tiempos de estadía, eficiencia de técnicos, retención y gasto por cliente, rotación e inventario parado.
 
 Opcional más adelante: envío automático de mensajes conectando WhatsApp Business (Twilio) o correo (Resend) con una Edge Function.

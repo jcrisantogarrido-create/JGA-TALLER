@@ -10,11 +10,11 @@ export const metadata: Metadata = { title: "Reportes" };
 const PERIODOS: [string, string][] = [["mes", "Este mes"], ["mes_ant", "Mes pasado"], ["30", "Últimos 30 días"], ["90", "Últimos 90 días"], ["anio", "Este año"]];
 
 type OT = {
-  orden_id: string; cliente_id: string; ingreso_total: number; ingreso_mano_obra: number; ingreso_piezas: number; costo_mano_obra: number; costo_piezas: number;
+  orden_id: string; cliente_id: string; ingreso_total: number; factor_pen: number; ingreso_mano_obra: number; ingreso_piezas: number; costo_mano_obra: number; costo_piezas: number;
   horas_reales: number; recibido_en: string; iniciado_en: string | null; terminado_en: string | null; entregado_en: string;
 };
 type Trabajo = {
-  precio: number; horas_cobradas: number; tecnico_id: string | null;
+  orden_id: string; precio: number; horas_cobradas: number; tecnico_id: string | null;
   categorias_servicio: { nombre: string } | null; tecnico: { nombre: string } | null;
   registros_tiempo: { horas: number | null; costo_hora: number }[];
   orden_piezas: { cantidad: number; precio_unitario: number; costo_unitario: number }[];
@@ -73,10 +73,10 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
   const I = (f: string) => localAInstante(f, "00:00", tz).toISOString();
   const supabase = await createClient();
 
-  const selOT = "orden_id, cliente_id, ingreso_total, ingreso_mano_obra, ingreso_piezas, costo_mano_obra, costo_piezas, horas_reales, recibido_en, iniciado_en, terminado_en, entregado_en";
+  const selOT = "orden_id, cliente_id, ingreso_total:ingreso_total_pen, factor_pen, ingreso_mano_obra, ingreso_piezas, costo_mano_obra, costo_piezas, horas_reales, recibido_en, iniciado_en, terminado_en, entregado_en";
   const [{ data: otData }, { data: antData }, { data: retencion }, { data: rotacion }, { data: citas }, { count: abiertas }] = await Promise.all([
     supabase.from("v_orden_totales").select(selOT).eq("sucursal_id", sucursal.id).eq("estado", "entregada").gte("entregado_en", I(desde)).lt("entregado_en", I(hasta)).limit(5000),
-    supabase.from("v_orden_totales").select("ingreso_total, costo_mano_obra, costo_piezas").eq("sucursal_id", sucursal.id).eq("estado", "entregada").gte("entregado_en", I(antDesde)).lt("entregado_en", I(antHasta)).limit(5000),
+    supabase.from("v_orden_totales").select("ingreso_total:ingreso_total_pen, costo_mano_obra, costo_piezas").eq("sucursal_id", sucursal.id).eq("estado", "entregada").gte("entregado_en", I(antDesde)).lt("entregado_en", I(antHasta)).limit(5000),
     supabase.from("v_retencion_clientes").select("*").maybeSingle(),
     supabase.from("v_rotacion_inventario").select("articulo_id, sku, nombre, stock_actual, valor_inventario, unidades_consumidas_12m, rotacion, dias_de_inventario"),
     supabase.from("citas").select("estado").eq("sucursal_id", sucursal.id).gte("inicio", I(desde)).lt("inicio", I(hasta)).lt("inicio", new Date().toISOString()),
@@ -98,25 +98,27 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
   for (let i = 0; i < ids.length; i += 300) {
     const { data } = await supabase
       .from("orden_servicios")
-      .select("precio, horas_cobradas, tecnico_id, categorias_servicio(nombre), tecnico:perfiles(nombre), registros_tiempo(horas, costo_hora), orden_piezas(cantidad, precio_unitario, costo_unitario)")
+      .select("orden_id, precio, horas_cobradas, tecnico_id, categorias_servicio(nombre), tecnico:perfiles(nombre), registros_tiempo(horas, costo_hora), orden_piezas(cantidad, precio_unitario, costo_unitario)")
       .in("orden_id", ids.slice(i, i + 300));
     trabajos.push(...((data as unknown as Trabajo[]) ?? []));
   }
   const porCat = new Map<string, { ingreso: number; costo: number; trabajos: number }>();
   const porTec = new Map<string, { nombre: string; cobradas: number; reales: number; ingreso: number; trabajos: number }>();
+  const factor = new Map(ots.map((o) => [o.orden_id, n(o.factor_pen) || 1]));
   for (const t of trabajos) {
-    const piezasV = t.orden_piezas.reduce((s, p) => s + n(p.cantidad) * n(p.precio_unitario), 0);
+    const k = factor.get(t.orden_id) ?? 1;
+    const piezasV = t.orden_piezas.reduce((s, p) => s + n(p.cantidad) * n(p.precio_unitario), 0) * k;
     const piezasC = t.orden_piezas.reduce((s, p) => s + n(p.cantidad) * n(p.costo_unitario), 0);
     const horas = t.registros_tiempo.reduce((s, r) => s + n(r.horas), 0);
     const moC = t.registros_tiempo.reduce((s, r) => s + n(r.horas) * n(r.costo_hora), 0);
     const cat = t.categorias_servicio?.nombre ?? "Otro";
     const c = porCat.get(cat) ?? { ingreso: 0, costo: 0, trabajos: 0 };
-    c.ingreso += n(t.precio) + piezasV; c.costo += moC + piezasC; c.trabajos++;
+    c.ingreso += n(t.precio) * k + piezasV; c.costo += moC + piezasC; c.trabajos++;
     porCat.set(cat, c);
     if (t.tecnico_id) {
-      const k = porTec.get(t.tecnico_id) ?? { nombre: t.tecnico?.nombre ?? "—", cobradas: 0, reales: 0, ingreso: 0, trabajos: 0 };
-      k.cobradas += n(t.horas_cobradas); k.reales += horas; k.ingreso += n(t.precio); k.trabajos++;
-      porTec.set(t.tecnico_id, k);
+      const tec = porTec.get(t.tecnico_id) ?? { nombre: t.tecnico?.nombre ?? "—", cobradas: 0, reales: 0, ingreso: 0, trabajos: 0 };
+      tec.cobradas += n(t.horas_cobradas); tec.reales += horas; tec.ingreso += n(t.precio) * k; tec.trabajos++;
+      porTec.set(t.tecnico_id, tec);
     }
   }
   const categorias = [...porCat.entries()].map(([nombre, v]) => ({ nombre, ...v, margen: v.ingreso - v.costo })).sort((a, b) => b.margen - a.margen);
@@ -162,7 +164,7 @@ export default async function ReportesPage({ searchParams }: { searchParams: Pro
       <div className="head">
         <div>
           <h1>Reportes</h1>
-          <p className="sub">{sucursal.nombre} · {etiquetaPeriodo} ({desde} a {sumarDias(hasta, -1)}) · órdenes entregadas</p>
+          <p className="sub">{sucursal.nombre} · {etiquetaPeriodo} ({desde} a {sumarDias(hasta, -1)}) · órdenes entregadas · montos en soles (las órdenes en dólares se convierten con su tipo de cambio)</p>
         </div>
       </div>
 

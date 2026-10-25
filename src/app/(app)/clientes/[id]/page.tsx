@@ -19,7 +19,7 @@ type Vehiculo = {
 type Historial = {
   orden_id: string; folio: number; placa: string; recibido_en: string; entregado_en: string | null;
   kilometraje_ingreso: number | null; categoria: string; trabajo: string; tecnico: string | null;
-  horas_cobradas: number; horas_reales: number | null; mano_obra: number; piezas: number; piezas_detalle: string | null;
+  horas_cobradas: number; horas_reales: number | null; mano_obra: number; piezas: number; piezas_detalle: string | null; moneda: string;
 };
 
 export default async function ClientePage({
@@ -195,8 +195,8 @@ export default async function ClientePage({
                     <td>{h.tecnico ?? "—"}</td>
                     <td className="num">{h.horas_reales ?? "—"} <span className="muted">/ {h.horas_cobradas}</span></td>
                     <td>{h.piezas_detalle ?? "—"}</td>
-                    <td className="num">{dinero(h.mano_obra)}</td>
-                    <td className="num">{dinero(h.piezas)}</td>
+                    <td className="num">{dinero(h.mano_obra, h.moneda)}</td>
+                    <td className="num">{dinero(h.piezas, h.moneda)}</td>
                   </tr>
                 ))}
               </tbody>

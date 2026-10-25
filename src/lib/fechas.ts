@@ -66,6 +66,7 @@ export function sumarDias(fecha: string, dias: number): string {
   return new Date(Date.UTC(y, m - 1, d + dias)).toISOString().slice(0, 10);
 }
 
-export function dinero(n: number | string | null | undefined): string {
-  return new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(Number(n ?? 0));
+export function dinero(n: number | string | null | undefined, moneda: string = "PEN"): string {
+  const f = new Intl.NumberFormat("es-PE", { style: "currency", currency: moneda === "USD" ? "USD" : "PEN" }).format(Number(n ?? 0));
+  return moneda === "USD" ? f.replace("USD", "US$") : f;
 }

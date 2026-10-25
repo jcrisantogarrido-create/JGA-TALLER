@@ -29,12 +29,12 @@ export default async function PedidoPage({ params, searchParams }: { params: Pro
   const supabase = await createClient();
   const { data } = await supabase
     .from("ordenes_compra")
-    .select("id, folio, estado, fecha_esperada, notas, created_at, sucursal_id, proveedor_id, proveedores(nombre, contacto, telefono, email, condiciones_pago, dias_entrega), sucursales(nombre, zona_horaria), perfiles(nombre)")
+    .select("id, folio, estado, moneda, tipo_cambio, fecha_esperada, notas, created_at, sucursal_id, proveedor_id, proveedores(nombre, contacto, telefono, email, condiciones_pago, dias_entrega), sucursales(nombre, zona_horaria), perfiles(nombre)")
     .eq("id", id)
     .maybeSingle();
   if (!data) notFound();
   const oc = data as unknown as {
-    id: string; folio: number; estado: EstadoOC; fecha_esperada: string | null; notas: string | null; created_at: string; sucursal_id: string; proveedor_id: string;
+    id: string; folio: number; estado: EstadoOC; moneda: string; tipo_cambio: number | null; fecha_esperada: string | null; notas: string | null; created_at: string; sucursal_id: string; proveedor_id: string;
     proveedores: { nombre: string; contacto: string | null; telefono: string | null; email: string | null; condiciones_pago: string | null; dias_entrega: number | null } | null;
     sucursales: { nombre: string; zona_horaria: string } | null; perfiles: { nombre: string } | null;
   };
@@ -64,7 +64,8 @@ export default async function PedidoPage({ params, searchParams }: { params: Pro
     const reorden = new Map((params ?? []).map((x) => [x.articulo_id as string, Number(x.cantidad_reorden)]));
     articulos = ((arts as { id: string; sku: string; codigo_barras: string | null; nombre: string; unidad: string; ultimo_costo: number | null; costo_promedio: number }[]) ?? []).map((a) => ({
       id: a.id, sku: a.sku, codigo_barras: a.codigo_barras, nombre: a.nombre, unidad: a.unidad,
-      costo: costoProv.get(a.id) ?? Number(a.ultimo_costo ?? a.costo_promedio ?? 0),
+      // Sin costo del proveedor se propone el último costo (en soles) convertido a la moneda del pedido
+      costo: costoProv.get(a.id) ?? Math.round((Number(a.ultimo_costo ?? a.costo_promedio ?? 0) / (oc.moneda === "USD" ? Number(oc.tipo_cambio) || 1 : 1)) * 100) / 100,
       sugerido: reorden.get(a.id) || null,
     }));
   }
@@ -85,7 +86,7 @@ export default async function PedidoPage({ params, searchParams }: { params: Pro
           <p className="sub"><Link href="/compras">Compras</Link> /</p>
           <h1>OC {oc.folio} · {oc.proveedores?.nombre}</h1>
           <p className="sub">
-            {oc.sucursales?.nombre} · creado {fechaHora(oc.created_at, tz)}{oc.perfiles && ` por ${oc.perfiles.nombre}`}
+            {oc.sucursales?.nombre} · {oc.moneda === "USD" ? `en dólares, TC ${Number(oc.tipo_cambio).toFixed(3)} · ` : ""}creado {fechaHora(oc.created_at, tz)}{oc.perfiles && ` por ${oc.perfiles.nombre}`}
             {oc.proveedores?.condiciones_pago && ` · pago ${oc.proveedores.condiciones_pago}`}
           </p>
         </div>
@@ -119,7 +120,7 @@ export default async function PedidoPage({ params, searchParams }: { params: Pro
       </div>
 
       <section className="panel">
-        <h2>Artículos <span className="muted num" style={{ fontSize: 15 }}>{dinero(total)}</span></h2>
+        <h2>Artículos <span className="muted num" style={{ fontSize: 15 }}>{dinero(total, oc.moneda)}</span></h2>
         {lineas.length === 0 ? (
           <div className="empty">El pedido está vacío. Agrega artículos abajo.</div>
         ) : (
@@ -132,8 +133,8 @@ export default async function PedidoPage({ params, searchParams }: { params: Pro
                     <td>{l.articulos?.nombre} <span className="muted mono">{l.articulos?.sku}</span></td>
                     <td className="num">{Number(l.cantidad)} {l.articulos?.unidad}</td>
                     <td className="num" style={{ color: Number(l.cantidad_recibida) >= Number(l.cantidad) ? "var(--ok)" : undefined }}>{Number(l.cantidad_recibida)}</td>
-                    <td className="num">{dinero(l.costo_unitario)}</td>
-                    <td className="num">{dinero(Number(l.cantidad) * Number(l.costo_unitario))}</td>
+                    <td className="num">{dinero(l.costo_unitario, oc.moneda)}</td>
+                    <td className="num">{dinero(Number(l.cantidad) * Number(l.costo_unitario), oc.moneda)}</td>
                     {borrador && (
                       <td>
                         <details>
@@ -184,6 +185,7 @@ export default async function PedidoPage({ params, searchParams }: { params: Pro
             <FormSimple accion={guardarPedido} textoBoton="Guardar" limpiar={false}>
               <input type="hidden" name="id" value={oc.id} />
               <div className="fields">
+                {oc.moneda === "USD" && <div className="field"><label htmlFor="oc-tc">Tipo de cambio (S/ por US$)</label><input id="oc-tc" name="tipo_cambio" inputMode="decimal" defaultValue={oc.tipo_cambio ?? ""} /></div>}
                 <div className="field"><label htmlFor="oc-fecha">Fecha esperada</label><input id="oc-fecha" name="fecha_esperada" type="date" defaultValue={oc.fecha_esperada ?? ""} /></div>
                 <div className="field wide"><label htmlFor="oc-notas">Notas</label><textarea id="oc-notas" name="notas" defaultValue={oc.notas ?? ""} /></div>
               </div>

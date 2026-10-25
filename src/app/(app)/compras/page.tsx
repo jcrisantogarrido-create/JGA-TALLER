@@ -10,10 +10,10 @@ import { crearPedido, generarSugeridos } from "./actions";
 
 export const metadata: Metadata = { title: "Compras" };
 
-type Pedido = { id: string; folio: number; proveedor: string; estado: EstadoOC; fecha_esperada: string | null; created_at: string; lineas: number; total: number; piezas_pendientes: number };
+type Pedido = { id: string; folio: number; proveedor: string; estado: EstadoOC; moneda: string; fecha_esperada: string | null; created_at: string; lineas: number; total: number; piezas_pendientes: number };
 type Alerta = {
   id: string; stock_detectado: number; punto_reorden: number; estado: string; orden_compra_id: string | null; created_at: string;
-  articulos: { id: string; sku: string; nombre: string; unidad: string; articulo_proveedores: { preferido: boolean; costo: number; proveedores: { nombre: string } | null }[] } | null;
+  articulos: { id: string; sku: string; nombre: string; unidad: string; articulo_proveedores: { preferido: boolean; costo: number; proveedores: { nombre: string; moneda: string } | null }[] } | null;
   ordenes_compra: { folio: number } | null;
 };
 
@@ -29,7 +29,7 @@ export default async function ComprasPage({
   const supabase = await createClient();
   const vista = sp.estado ?? "abiertos";
 
-  let consulta = supabase.from("v_ordenes_compra").select("id, folio, proveedor, estado, fecha_esperada, created_at, lineas, total, piezas_pendientes")
+  let consulta = supabase.from("v_ordenes_compra").select("id, folio, proveedor, estado, moneda, fecha_esperada, created_at, lineas, total, piezas_pendientes")
     .eq("sucursal_id", sucursal.id).order("created_at", { ascending: false }).limit(200);
   if (vista === "abiertos") consulta = consulta.in("estado", ["borrador", "enviada", "parcial"]);
   else if (vista !== "todos") consulta = consulta.eq("estado", vista);
@@ -38,7 +38,7 @@ export default async function ComprasPage({
     consulta,
     supabase
       .from("alertas_reabastecimiento")
-      .select("id, stock_detectado, punto_reorden, estado, orden_compra_id, created_at, articulos(id, sku, nombre, unidad, articulo_proveedores(preferido, costo, proveedores(nombre))), ordenes_compra(folio)")
+      .select("id, stock_detectado, punto_reorden, estado, orden_compra_id, created_at, articulos(id, sku, nombre, unidad, articulo_proveedores(preferido, costo, proveedores(nombre, moneda))), ordenes_compra(folio)")
       .eq("sucursal_id", sucursal.id).in("estado", ["abierta", "en_compra"]).order("created_at"),
     supabase.from("proveedores").select("id, nombre").eq("activo", true).order("nombre"),
   ]);
@@ -97,7 +97,7 @@ export default async function ComprasPage({
                       <td><Link href={`/inventario/${a.articulos?.id}`}>{a.articulos?.nombre}</Link> <span className="muted mono">{a.articulos?.sku}</span></td>
                       <td className="num">{Number(a.stock_detectado)} {a.articulos?.unidad}</td>
                       <td className="num">{Number(a.punto_reorden)}</td>
-                      <td>{pref ? <>{pref.proveedores?.nombre} <span className="muted num">{dinero(pref.costo)}</span></> : <span className="muted">Sin proveedor preferido</span>}</td>
+                      <td>{pref ? <>{pref.proveedores?.nombre} <span className="muted num">{dinero(pref.costo, pref.proveedores?.moneda)}</span></> : <span className="muted">Sin proveedor preferido</span>}</td>
                       <td>
                         {a.estado === "en_compra" && a.orden_compra_id
                           ? <Link className="chip enviada" href={`/compras/${a.orden_compra_id}`}>En pedido OC {a.ordenes_compra?.folio}</Link>
@@ -134,7 +134,7 @@ export default async function ComprasPage({
                       <td>{p.proveedor}</td>
                       <td><span className={`chip ${p.estado}`}>{ESTADOS_OC[p.estado]}</span></td>
                       <td className="num">{p.lineas}{p.estado === "parcial" && <span className="muted"> · faltan {Number(p.piezas_pendientes)}</span>}</td>
-                      <td className="num">{dinero(p.total)}</td>
+                      <td className="num">{dinero(p.total, p.moneda)}</td>
                       <td className="num">{p.fecha_esperada ?? "—"}</td>
                       <td className="num">{fechaHora(p.created_at, tz)}</td>
                     </tr>

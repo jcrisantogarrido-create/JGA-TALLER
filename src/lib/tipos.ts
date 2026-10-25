@@ -156,3 +156,10 @@ export const ESTADOS_OC: Record<EstadoOC, string> = {
   recibida: "Recibido completo",
   cancelada: "Cancelado",
 };
+
+export type Moneda = "PEN" | "USD";
+
+export const MONEDAS: Record<Moneda, string> = {
+  PEN: "Soles (S/)",
+  USD: "Dólares (US$)",
+};

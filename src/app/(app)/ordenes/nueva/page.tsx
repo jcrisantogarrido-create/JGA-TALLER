@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requierePerfil, sucursalActiva } from "@/lib/sesion";
-import { CHECKLIST_RECEPCION } from "@/lib/tipos";
+import { CHECKLIST_RECEPCION, MONEDAS } from "@/lib/tipos";
+import { dinero } from "@/lib/fechas";
 import FormSimple from "@/components/FormSimple";
 import { abrirOrden } from "../actions";
 
@@ -78,7 +79,7 @@ export default async function NuevaOrdenPage({
   // Paso 2: datos de recepción
   const [{ data: veh }, { data: servicios }, { data: tecnicos }, { data: bahias }, { data: abierta }] = await Promise.all([
     supabase.from("vehiculos").select(selVeh).eq("id", vehiculoId).maybeSingle(),
-    supabase.from("servicios").select("id, nombre").eq("activo", true).order("nombre"),
+    supabase.from("servicios").select("id, nombre, precio_base, moneda").eq("activo", true).order("nombre"),
     supabase.from("perfiles").select("id, nombre").eq("rol", "tecnico").eq("activo", true).order("nombre"),
     supabase.from("bahias").select("id, nombre").eq("sucursal_id", sucursal.id).eq("activa", true).order("nombre"),
     supabase.from("ordenes_trabajo").select("id, folio").eq("vehiculo_id", vehiculoId).not("estado", "in", "(entregada,cancelada)").limit(1).maybeSingle(),
@@ -124,7 +125,13 @@ export default async function NuevaOrdenPage({
               <label htmlFor="o-serv">Servicio</label>
               <select id="o-serv" name="servicio_id" defaultValue={cita?.servicio_id ?? ""}>
                 <option value="">Por diagnosticar</option>
-                {(servicios ?? []).map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+                {(servicios ?? []).map((s) => <option key={s.id} value={s.id}>{s.nombre} · {dinero(s.precio_base, s.moneda)}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="o-mon">Se cobra en</label>
+              <select id="o-mon" name="moneda" defaultValue="PEN">
+                {Object.entries(MONEDAS).map(([m, t]) => <option key={m} value={m}>{t}</option>)}
               </select>
             </div>
             <div className="field">

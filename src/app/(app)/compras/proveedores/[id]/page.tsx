@@ -20,7 +20,7 @@ export default async function ProveedorPage({ params }: { params: Promise<{ id: 
   const [{ data: prov }, { data: apData }, { data: pedidos }, { data: articulos }] = await Promise.all([
     supabase.from("proveedores").select("*").eq("id", id).maybeSingle(),
     supabase.from("articulo_proveedores").select("articulo_id, costo, codigo_proveedor, preferido, articulos(sku, nombre, unidad, ultimo_costo)").eq("proveedor_id", id),
-    supabase.from("v_ordenes_compra").select("id, folio, estado, total, created_at").eq("proveedor_id", id).order("created_at", { ascending: false }).limit(20),
+    supabase.from("v_ordenes_compra").select("id, folio, estado, total, moneda, created_at").eq("proveedor_id", id).order("created_at", { ascending: false }).limit(20),
     supabase.from("articulos").select("sku, nombre").eq("activo", true).order("nombre").limit(2000),
   ]);
   if (!prov) notFound();
@@ -47,7 +47,7 @@ export default async function ProveedorPage({ params }: { params: Promise<{ id: 
                   <tr key={a.articulo_id}>
                     <td><Link href={`/inventario/${a.articulo_id}`}>{a.articulos?.nombre}</Link> <span className="muted mono">{a.articulos?.sku}</span></td>
                     <td className="mono">{a.codigo_proveedor ?? "—"}</td>
-                    <td className="num">{dinero(a.costo)}</td>
+                    <td className="num">{dinero(a.costo, prov.moneda)}</td>
                     <td>
                       <form action={marcarPreferido.bind(null, a.articulo_id, id, !a.preferido)}>
                         <button className={`btn small ${a.preferido ? "primary" : ""}`} type="submit" title={a.preferido ? "Quitar como preferido" : "Pedir este artículo a este proveedor"}>
@@ -72,7 +72,7 @@ export default async function ProveedorPage({ params }: { params: Promise<{ id: 
               <input id="va-cod" name="codigo" list="l-arts" required autoComplete="off" placeholder="ACE-5W30" />
               <datalist id="l-arts">{(articulos ?? []).map((a) => <option key={a.sku} value={a.sku}>{a.nombre}</option>)}</datalist>
             </div>
-            <div className="field"><label htmlFor="va-costo">Costo</label><input id="va-costo" name="costo" inputMode="decimal" required placeholder="0.00" /></div>
+            <div className="field"><label htmlFor="va-costo">Costo ({prov.moneda === "USD" ? "US$" : "S/"})</label><input id="va-costo" name="costo" inputMode="decimal" required placeholder="0.00" /></div>
             <div className="field"><label htmlFor="va-cp">Código del proveedor</label><input id="va-cp" name="codigo_proveedor" /></div>
             <label className="row" style={{ gap: 6, fontWeight: 400 }}><input type="checkbox" name="preferido" defaultChecked /> Pedirle este artículo (preferido)</label>
           </div>
@@ -94,12 +94,12 @@ export default async function ProveedorPage({ params }: { params: Promise<{ id: 
             <div className="empty">Aún no hay pedidos a este proveedor.</div>
           ) : (
             <ul className="list">
-              {(pedidos as { id: string; folio: number; estado: EstadoOC; total: number; created_at: string }[]).map((p) => (
+              {(pedidos as { id: string; folio: number; estado: EstadoOC; total: number; moneda: string; created_at: string }[]).map((p) => (
                 <li key={p.id}>
                   <div className="row" style={{ justifyContent: "space-between" }}>
                     <Link className="mono" href={`/compras/${p.id}`}>OC {p.folio}</Link>
                     <span className={`chip ${p.estado}`}>{ESTADOS_OC[p.estado]}</span>
-                    <span className="num">{dinero(p.total)}</span>
+                    <span className="num">{dinero(p.total, p.moneda)}</span>
                   </div>
                 </li>
               ))}

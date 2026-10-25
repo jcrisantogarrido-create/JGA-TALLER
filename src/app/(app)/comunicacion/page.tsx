@@ -21,7 +21,7 @@ type Cita = {
   vehiculos: { placa: string; marca: string; modelo: string } | null; servicios: { nombre: string } | null;
 };
 type Lista = {
-  id: string; folio: number; cliente_id: string; vehiculo_id: string;
+  id: string; folio: number; cliente_id: string; vehiculo_id: string; moneda: string;
   clientes: { nombre: string; telefono: string | null; email: string | null; canal_preferido: string } | null;
   vehiculos: { placa: string; marca: string; modelo: string } | null;
   comunicaciones: { id: string }[];
@@ -46,7 +46,7 @@ export default async function ComunicacionPage() {
       .order("inicio"),
     supabase
       .from("ordenes_trabajo")
-      .select("id, folio, cliente_id, vehiculo_id, clientes(nombre, telefono, email, canal_preferido), vehiculos(placa, marca, modelo), comunicaciones(id)")
+      .select("id, folio, cliente_id, vehiculo_id, moneda, clientes(nombre, telefono, email, canal_preferido), vehiculos(placa, marca, modelo), comunicaciones(id)")
       .eq("sucursal_id", sucursal.id).eq("estado", "terminada").eq("comunicaciones.asunto", "Vehículo listo"),
     supabase.from("plantillas_mensaje").select("clave, asunto, texto"),
     supabase.from("sucursales").select("prefijo_telefono").eq("id", sucursal.id).maybeSingle(),
@@ -164,7 +164,7 @@ export default async function ComunicacionPage() {
                 const canal = canalDeEnvio(cli.canal_preferido, cli);
                 const t = tot.get(o.id);
                 const pl = P.get("vehiculo_listo");
-                const texto = rellenar(pl?.texto ?? "", { nombre: cli.nombre, placa: o.vehiculos?.placa, vehiculo: `${o.vehiculos?.marca} ${o.vehiculos?.modelo}`, total: dinero(Number(t?.ingreso_total ?? 0) - Number(t?.pagado ?? 0)) });
+                const texto = rellenar(pl?.texto ?? "", { nombre: cli.nombre, placa: o.vehiculos?.placa, vehiculo: `${o.vehiculos?.marca} ${o.vehiculos?.modelo}`, total: dinero(Number(t?.ingreso_total ?? 0) - Number(t?.pagado ?? 0), o.moneda) });
                 return (
                   <li key={o.id}>
                     <div className="row" style={{ justifyContent: "space-between" }}>
