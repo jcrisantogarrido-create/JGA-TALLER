@@ -42,6 +42,7 @@ export default async function CitaPage({
     .eq("id", id)
     .maybeSingle();
   if (!cita) notFound();
+  const { data: orden } = await supabase.from("ordenes_trabajo").select("id, folio").eq("cita_id", id).maybeSingle();
 
   const c = cita as unknown as {
     id: string; inicio: string; fin: string; estado: EstadoCita; motivo_cliente: string | null; canal_origen: string | null; created_at: string;
@@ -113,6 +114,13 @@ export default async function CitaPage({
                 </form>
               ))}
             </div>
+          )}
+          {orden ? (
+            <Link className="btn" href={`/ordenes/${orden.id}`}>Ver orden de trabajo OT {orden.folio}</Link>
+          ) : (
+            perfil.rol !== "tecnico" && ["programada", "confirmada", "en_curso"].includes(c.estado) && (
+              <Link className="btn primary" href={`/ordenes/nueva?cita=${c.id}`}>Recibir vehículo y abrir orden</Link>
+            )
           )}
           <p className="muted" style={{ fontSize: 13 }}>
             Al cancelar o marcar “No asistió” la bahía y el técnico quedan libres para otra cita.

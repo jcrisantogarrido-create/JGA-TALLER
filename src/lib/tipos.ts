@@ -98,3 +98,51 @@ export const ESTADOS_STOCK = {
 } as const;
 
 export const puedeGestionarInventario = (rol: Rol) => rol === "admin" || rol === "gerente";
+
+export type EstadoOrden =
+  | "abierta" | "diagnostico" | "esperando_aprobacion" | "esperando_piezas" | "en_proceso"
+  | "control_calidad" | "terminada" | "entregada" | "cancelada";
+
+export const ESTADOS_ORDEN: Record<EstadoOrden, string> = {
+  abierta: "Recibida",
+  diagnostico: "En diagnóstico",
+  esperando_aprobacion: "Espera aprobación",
+  esperando_piezas: "Espera piezas",
+  en_proceso: "En proceso",
+  control_calidad: "Control de calidad",
+  terminada: "Lista para entregar",
+  entregada: "Entregada",
+  cancelada: "Cancelada",
+};
+
+export const TRANSICIONES_ORDEN: Record<EstadoOrden, EstadoOrden[]> = {
+  abierta: ["diagnostico", "en_proceso", "cancelada"],
+  diagnostico: ["esperando_aprobacion", "en_proceso", "cancelada"],
+  esperando_aprobacion: ["en_proceso", "esperando_piezas", "cancelada"],
+  esperando_piezas: ["en_proceso", "cancelada"],
+  en_proceso: ["esperando_piezas", "control_calidad", "terminada"],
+  control_calidad: ["en_proceso", "terminada"],
+  terminada: ["entregada", "en_proceso"],
+  entregada: [],
+  cancelada: ["abierta"],
+};
+
+// Lo que el técnico puede mover desde su celular
+export const ESTADOS_TECNICO: EstadoOrden[] = ["diagnostico", "en_proceso", "esperando_piezas", "control_calidad", "terminada"];
+
+export const ESTADOS_ORDEN_ACTIVOS: EstadoOrden[] = [
+  "abierta", "diagnostico", "esperando_aprobacion", "esperando_piezas", "en_proceso", "control_calidad", "terminada",
+];
+
+export const METODOS_PAGO = {
+  efectivo: "Efectivo",
+  tarjeta: "Tarjeta",
+  transferencia: "Transferencia",
+  credito: "Crédito",
+  otro: "Otro",
+} as const;
+
+export const CHECKLIST_RECEPCION = [
+  "Llanta de refacción", "Gato y llave", "Tapetes", "Radio / pantalla", "Tarjeta de circulación",
+  "Golpes o rayones previos", "Testigos encendidos en tablero", "Objetos de valor",
+] as const;

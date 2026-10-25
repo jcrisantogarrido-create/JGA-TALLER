@@ -12,7 +12,10 @@ Sistema de gestión para taller mecánico y detailing: clientes y vehículos, ag
 - **Kardex dinámico** (costo promedio ponderado): por artículo o general, con saldo inicial, entradas, salidas, saldo y valor tras cada movimiento. Los filtros (fechas, tipo, ubicación, búsqueda por artículo, SKU, código o factura) se aplican al instante, y se exporta a Excel.
 - **Movimientos**: entradas por compra con proveedor y factura, ajustes, mermas y transferencias entre ubicaciones, con lector de código de barras USB/Bluetooth o la cámara del celular.
 
-Pendiente en las siguientes entregas: órdenes de trabajo, órdenes de compra, recordatorios automáticos por WhatsApp/SMS/email y tablero de KPI. La base de datos de todo eso ya está en la migración.
+- **Órdenes de trabajo**: recepción del vehículo (km, combustible, checklist), trabajos con técnico, reloj de horas reales desde el celular, piezas escaneadas que se descuentan del inventario y quedan en el kardex con el folio, cobro con varios pagos, utilidad por orden y entrega que completa la cita, crea recordatorios y suma puntos de fidelidad.
+- **Ubicaciones del almacén**: crear, renombrar y desactivar desde Inventario → Ubicaciones.
+
+Pendiente en las siguientes entregas: órdenes de compra, recordatorios automáticos por WhatsApp/SMS/email y tablero de KPI. La base de datos de todo eso ya está en la migración.
 
 ## Puesta en marcha
 

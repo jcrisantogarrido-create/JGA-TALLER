@@ -113,7 +113,7 @@ td a { font-weight: 500; }
 .chip { display: inline-block; font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 99px; background: var(--steel-soft); color: var(--steel); white-space: nowrap; }
 .chip.programada { background: var(--steel-soft); color: var(--steel); }
 .chip.confirmada { background: var(--ok-soft); color: var(--ok); }
-.chip.en_curso { background: var(--accent-soft); color: var(--accent); }
+.chip.en_curso, .chip.en_proceso { background: var(--accent-soft); color: var(--accent); }
 .chip.completada { background: var(--bg); color: var(--muted); }
 .chip.cancelada, .chip.no_asistio { background: var(--bad-soft); color: var(--bad); }
 
@@ -189,3 +189,22 @@ table.kardex tfoot td { font-weight: 600; background: var(--bg); border-top: 2px
 .tabs button { font: inherit; background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; cursor: pointer; color: var(--muted); font-weight: 500; }
 .tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
 .camera { width: 100%; max-width: 420px; border-radius: var(--radius); background: #000; aspect-ratio: 4 / 3; object-fit: cover; }
+
+/* Órdenes de trabajo */
+.chip.abierta, .chip.diagnostico { background: var(--steel-soft); color: var(--steel); }
+.chip.esperando_aprobacion, .chip.esperando_piezas { background: var(--warn-soft); color: var(--warn); }
+.chip.control_calidad { background: var(--accent-soft); color: var(--accent); }
+.chip.terminada { background: var(--ok-soft); color: var(--ok); }
+.chip.entregada { background: var(--bg); color: var(--muted); }
+.trabajo { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; background: var(--surface); }
+.trabajo.hecho { background: color-mix(in srgb, var(--ok-soft) 40%, var(--surface)); }
+.trabajo header { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; justify-content: space-between; }
+.reloj { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.reloj.corriendo { color: var(--accent); font-weight: 600; }
+.totales { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; font-size: 15px; }
+.totales dt { color: var(--muted); }
+.totales dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.totales .grande { font-family: var(--font-display); font-size: 24px; color: var(--fg); }
+.timeline { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13px; color: var(--muted); }
+.timeline b { color: var(--fg); font-weight: 500; }
+.checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px 14px; }

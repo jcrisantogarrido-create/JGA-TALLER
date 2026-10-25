@@ -102,6 +102,7 @@ export default async function ClientePage({
                     <span className="placa">{v.placa}</span>
                     <b>{v.marca} {v.modelo} {v.anio}</b>
                     {!v.activo && <span className="chip">Inactivo</span>}
+                    {v.activo && puedeEditar && <Link className="btn small" href={`/ordenes/nueva?vehiculo=${v.id}`}>Recibir</Link>}
                   </div>
                   <div className="meta">
                     <span>{TIPOS_VEHICULO[v.tipo]}</span>
@@ -187,7 +188,7 @@ export default async function ClientePage({
               <tbody>
                 {hs.map((h, i) => (
                   <tr key={`${h.orden_id}-${i}`}>
-                    <td className="num">{fechaHora(h.recibido_en, tz)}<div className="muted mono">OT {h.folio}{h.kilometraje_ingreso != null && ` · ${h.kilometraje_ingreso.toLocaleString("es-MX")} km`}</div></td>
+                    <td className="num">{fechaHora(h.recibido_en, tz)}<div className="muted mono"><Link href={`/ordenes/${h.orden_id}`}>OT {h.folio}</Link>{h.kilometraje_ingreso != null && ` · ${h.kilometraje_ingreso.toLocaleString("es-MX")} km`}</div></td>
                     <td><span className="placa">{h.placa}</span></td>
                     <td><span className="chip">{h.categoria}</span></td>
                     <td>{h.trabajo}</td>

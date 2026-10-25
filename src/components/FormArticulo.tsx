@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { TIPOS_ARTICULO } from "@/lib/tipos";
 import type { Estado } from "@/app/(app)/inventario/actions";
+import EscanerCamara from "./EscanerCamara";
 
 export type ArticuloForm = {
   id?: string;
@@ -42,6 +43,7 @@ export default function FormArticulo({
 }) {
   const [estado, enviar, enviando] = useActionState(accion, {});
   const v = (x: unknown) => (x == null ? "" : String(x));
+  const refCodigo = useRef<HTMLInputElement>(null);
   return (
     <form action={enviar} className="form">
       {inicial.id && <input type="hidden" name="id" value={inicial.id} />}
@@ -56,7 +58,8 @@ export default function FormArticulo({
         </div>
         <div className="field">
           <label htmlFor="a-cb">Código de barras</label>
-          <input id="a-cb" name="codigo_barras" defaultValue={v(inicial.codigo_barras)} inputMode="numeric" placeholder="Escanéalo aquí" className="mono" />
+          <input ref={refCodigo} id="a-cb" name="codigo_barras" defaultValue={v(inicial.codigo_barras)} inputMode="numeric" placeholder="Escanéalo aquí" className="mono" />
+          <EscanerCamara onCodigo={(c) => { if (refCodigo.current) refCodigo.current.value = c; }} />
         </div>
         <div className="field wide">
           <label htmlFor="a-nombre">Nombre</label>

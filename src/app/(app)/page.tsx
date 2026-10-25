@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requierePerfil, sucursalActiva } from "@/lib/sesion";
-import { ESTADOS_CITA, type EstadoCita } from "@/lib/tipos";
+import { ESTADOS_CITA, ESTADOS_ORDEN_ACTIVOS, type EstadoCita } from "@/lib/tipos";
 import { fechaLarga, fechaLocal, hora, localAInstante, sumarDias } from "@/lib/fechas";
 
 export default async function InicioPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
@@ -15,7 +15,7 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
   const hasta = localAInstante(sumarDias(hoy, 1), "00:00", tz).toISOString();
 
   const esGestion = perfil.rol === "admin" || perfil.rol === "gerente";
-  const [{ data: citas }, { count: clientes }, { count: alertas }, { count: recordatorios }] = await Promise.all([
+  const [{ data: citas }, { count: clientes }, { count: alertas }, { count: recordatorios }, { count: ordenes }] = await Promise.all([
     sucursal
       ? supabase.from("citas")
           .select("id, inicio, fin, estado, vehiculos(placa, marca, modelo), servicios(nombre), clientes(nombre, apellidos), bahias(nombre), tecnico:perfiles!citas_tecnico_id_fkey(nombre)")
@@ -29,6 +29,7 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
     perfil.rol !== "tecnico"
       ? supabase.from("v_recordatorios_por_enviar").select("id", { count: "exact", head: true })
       : Promise.resolve({ count: null }),
+    supabase.from("ordenes_trabajo").select("id", { count: "exact", head: true }).in("estado", ESTADOS_ORDEN_ACTIVOS),
   ]);
 
   const lista = (citas as unknown as {
@@ -54,6 +55,7 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
         <div className="stat"><b>{lista.length}</b><span>{perfil.rol === "tecnico" ? "Tus citas de hoy" : "Citas hoy"}</span></div>
         <div className="stat"><b>{pendientes}</b><span>Por llegar</span></div>
         <div className="stat"><b>{enCurso}</b><span>En curso</span></div>
+        <Link className="stat" href="/ordenes" style={{ textDecoration: "none", color: "inherit" }}><b>{ordenes ?? 0}</b><span>{perfil.rol === "tecnico" ? "Tus órdenes abiertas" : "Vehículos en el taller"}</span></Link>
         {perfil.rol !== "tecnico" && <div className="stat"><b>{recordatorios ?? 0}</b><span>Recordatorios por enviar</span></div>}
         {esGestion && <div className="stat"><b>{alertas ?? 0}</b><span>Alertas de stock</span></div>}
         {perfil.rol !== "tecnico" && <div className="stat"><b>{clientes ?? 0}</b><span>Clientes activos</span></div>}

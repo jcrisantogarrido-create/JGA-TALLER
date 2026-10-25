@@ -249,3 +249,34 @@ export async function resolverAlerta(id: string, articuloId: string) {
   revalidatePath(`/inventario/${articuloId}`);
   revalidatePath("/inventario");
 }
+
+/** Alta o cambio de nombre de una ubicación del almacén. El historial del kardex conserva la relación. */
+export async function guardarUbicacion(_: Estado, f: FormData): Promise<Estado> {
+  await requierePerfil(["admin", "gerente"]);
+  const id = txt(f, "id");
+  const codigo = txt(f, "codigo");
+  if (!codigo) return { error: "Escribe el nombre de la ubicación." };
+  const datos = { codigo, descripcion: txt(f, "descripcion"), bahia_id: txt(f, "bahia_id") };
+  const supabase = await createClient();
+  const { error } = id
+    ? await supabase.from("ubicaciones").update(datos).eq("id", id)
+    : await supabase.from("ubicaciones").insert({ ...datos, sucursal_id: String(f.get("sucursal_id")) });
+  if (error) {
+    if (error.code === "23505") return { error: `Ya existe una ubicación llamada “${codigo}” en esta sucursal.` };
+    return { error: mensajeError(error) };
+  }
+  revalidatePath("/inventario/ubicaciones");
+  revalidatePath("/kardex");
+  return { ok: id ? "Ubicación actualizada." : "Ubicación creada." };
+}
+
+export async function alternarUbicacion(id: string, activa: boolean): Promise<void> {
+  await requierePerfil(["admin", "gerente"]);
+  const supabase = await createClient();
+  if (!activa) {
+    const { data } = await supabase.from("existencias").select("cantidad").eq("ubicacion_id", id).gt("cantidad", 0).limit(1);
+    if (data && data.length) redirect("/inventario/ubicaciones?error=con-stock");
+  }
+  await supabase.from("ubicaciones").update({ activa }).eq("id", id);
+  revalidatePath("/inventario/ubicaciones");
+}

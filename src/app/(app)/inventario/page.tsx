@@ -68,6 +68,7 @@ export default async function InventarioPage({
         </div>
         <div className="row">
           <Link className="btn" href="/kardex">Ver kardex</Link>
+          {gestiona && <Link className="btn" href="/inventario/ubicaciones">Ubicaciones</Link>}
           {gestiona && <Link className="btn" href="/inventario/movimiento">Registrar movimiento</Link>}
           {gestiona && <Link className="btn primary" href="/inventario/nuevo">Nuevo artículo</Link>}
         </div>
