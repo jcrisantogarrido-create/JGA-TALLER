@@ -8,11 +8,12 @@ const ENLACES: { href: string; texto: string; roles: Rol[] }[] = [
   { href: "/", texto: "Inicio", roles: ["admin", "gerente", "recepcion", "tecnico"] },
   { href: "/agenda", texto: "Agenda", roles: ["admin", "gerente", "recepcion", "tecnico"] },
   { href: "/clientes", texto: "Clientes", roles: ["admin", "gerente", "recepcion", "tecnico"] },
+  { href: "/inventario", texto: "Inventario", roles: ["admin", "gerente", "recepcion", "tecnico"] },
+  { href: "/kardex", texto: "Kardex", roles: ["admin", "gerente", "recepcion", "tecnico"] },
 ];
 
 const PROXIMOS: { texto: string; roles: Rol[] }[] = [
   { texto: "Órdenes de trabajo", roles: ["admin", "gerente", "recepcion", "tecnico"] },
-  { texto: "Inventario", roles: ["admin", "gerente", "recepcion", "tecnico"] },
   { texto: "Reportes", roles: ["admin", "gerente"] },
 ];
 

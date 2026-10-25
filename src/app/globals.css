@@ -167,3 +167,25 @@ td a { font-weight: 500; }
 .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 2px; }
 .stat b { font-family: var(--font-display); font-size: 30px; font-variant-numeric: tabular-nums; }
 .stat span { font-size: 13px; color: var(--muted); }
+
+/* Inventario y kardex */
+.chip.agotado { background: var(--bad-soft); color: var(--bad); }
+.chip.bajo { background: var(--warn-soft); color: var(--warn); }
+.chip.exceso { background: var(--steel-soft); color: var(--steel); }
+.chip.ok { background: var(--ok-soft); color: var(--ok); }
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 12px; align-items: end; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.filters .field.grow { grid-column: span 2; }
+@media (max-width: 520px) { .filters .field.grow { grid-column: auto; } }
+table.kardex td, table.kardex th { white-space: nowrap; }
+table.kardex td.r, table.kardex th.r { text-align: right; }
+table.kardex .in { color: var(--ok); font-weight: 600; }
+table.kardex .out { color: var(--bad); font-weight: 600; }
+table.kardex .saldo { font-weight: 600; background: color-mix(in srgb, var(--steel-soft) 45%, transparent); }
+table.kardex tr.inicial td { background: var(--bg); color: var(--muted); font-style: italic; }
+table.kardex tfoot td { font-weight: 600; background: var(--bg); border-top: 2px solid var(--line); }
+.scan { display: flex; gap: 8px; flex-wrap: wrap; }
+.scan input { flex: 1 1 220px; font-family: var(--font-mono); font-size: 16px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); }
+.tabs button { font: inherit; background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; cursor: pointer; color: var(--muted); font-weight: 500; }
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.camera { width: 100%; max-width: 420px; border-radius: var(--radius); background: #000; aspect-ratio: 4 / 3; object-fit: cover; }

@@ -8,8 +8,11 @@ Sistema de gestión para taller mecánico y detailing: clientes y vehículos, ag
 - **Clientes y vehículos**: alta de cliente con su primer vehículo, búsqueda por nombre, teléfono, correo o placa (sin importar guiones ni espacios), ficha con vehículos, historial de servicio, próximas citas, recordatorios y bitácora de comunicación.
 - **Agenda** por día, en columnas por bahía o por técnico. Para agendar, el sistema muestra solo los horarios donde hay un técnico en turno y una bahía libre. La base de datos rechaza cualquier doble reserva aunque dos personas agenden al mismo tiempo.
 - **Vista del técnico** en el celular: solo ve sus citas y puede marcar el inicio y el término.
+- **Inventario**: catálogo por tipo, categoría y marca; existencia por sucursal y ubicación en tiempo real; punto de reorden con alerta automática al bajar del mínimo.
+- **Kardex dinámico** (costo promedio ponderado): por artículo o general, con saldo inicial, entradas, salidas, saldo y valor tras cada movimiento. Los filtros (fechas, tipo, ubicación, búsqueda por artículo, SKU, código o factura) se aplican al instante, y se exporta a Excel.
+- **Movimientos**: entradas por compra con proveedor y factura, ajustes, mermas y transferencias entre ubicaciones, con lector de código de barras USB/Bluetooth o la cámara del celular.
 
-Pendiente en las siguientes entregas: órdenes de trabajo, inventario con escáner, compras, recordatorios automáticos por WhatsApp/SMS/email y tablero de KPI. La base de datos de todo eso ya está en la migración.
+Pendiente en las siguientes entregas: órdenes de trabajo, órdenes de compra, recordatorios automáticos por WhatsApp/SMS/email y tablero de KPI. La base de datos de todo eso ya está en la migración.
 
 ## Puesta en marcha
 
@@ -32,6 +35,10 @@ Pendiente en las siguientes entregas: órdenes de trabajo, inventario con escán
 ### Publicar en Vercel
 
 En [vercel.com/new](https://vercel.com/new) importa este repositorio, agrega las dos variables de entorno y pulsa **Deploy**. Después, en Supabase → Authentication → URL Configuration, pon la dirección que te dé Vercel como Site URL.
+
+### Actualizar una base ya instalada
+
+Cada cambio de base de datos posterior a la instalación viene en `supabase/actualizaciones/`. Ejecuta en el SQL Editor, una sola vez y en orden, los que tengan fecha posterior a tu instalación.
 
 ## Estructura
 
