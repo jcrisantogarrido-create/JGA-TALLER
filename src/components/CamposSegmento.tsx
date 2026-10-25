@@ -1,4 +1,5 @@
 import { TIPOS_VEHICULO } from "@/lib/tipos";
+import { dinero } from "@/lib/fechas";
 
 export type Reglas = {
   dias_sin_visita_min?: number; dias_sin_visita_max?: number; gasto_min?: number; gasto_max?: number; visitas_min?: number;
@@ -10,8 +11,8 @@ export function describirReglas(r: Reglas): string {
   if (r.dias_sin_visita_min != null) p.push(`sin venir hace ${r.dias_sin_visita_min}+ días`);
   if (r.dias_sin_visita_max != null) p.push(`vino en los últimos ${r.dias_sin_visita_max} días`);
   if (r.visitas_min != null) p.push(`${r.visitas_min}+ visitas`);
-  if (r.gasto_min != null) p.push(`gasto desde $${r.gasto_min.toLocaleString("es-MX")}`);
-  if (r.gasto_max != null) p.push(`gasto hasta $${r.gasto_max.toLocaleString("es-MX")}`);
+  if (r.gasto_min != null) p.push(`gasto desde ${dinero(r.gasto_min)}`);
+  if (r.gasto_max != null) p.push(`gasto hasta ${dinero(r.gasto_max)}`);
   if (r.tipos_vehiculo?.length) p.push(r.tipos_vehiculo.map((t) => TIPOS_VEHICULO[t as keyof typeof TIPOS_VEHICULO] ?? t).join("/"));
   if (r.marcas?.length) p.push(r.marcas.join("/"));
   if (r.categorias?.length) p.push(`usó ${r.categorias.join("/")}`);

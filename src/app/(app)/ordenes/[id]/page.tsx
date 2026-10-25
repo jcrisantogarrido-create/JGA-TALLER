@@ -88,7 +88,7 @@ export default async function OrdenPage({
   ]);
   const trabajos = (trabajosData as unknown as Trabajo[]) ?? [];
   const t = totales as { ingreso_mano_obra: number; ingreso_piezas: number; ingreso_total: number; costo_mano_obra: number; costo_piezas: number; horas_reales: number; pagado: number } | null;
-  const tz = o.sucursales?.zona_horaria ?? (await sucursalActiva(perfil))?.zona_horaria ?? "America/Mexico_City";
+  const tz = o.sucursales?.zona_horaria ?? (await sucursalActiva(perfil))?.zona_horaria ?? "America/Lima";
   const cerrada = o.estado === "entregada" || o.estado === "cancelada";
   const saldo = Number(t?.ingreso_total ?? 0) - Number(t?.pagado ?? 0);
   const costo = Number(t?.costo_mano_obra ?? 0) + Number(t?.costo_piezas ?? 0);
@@ -406,7 +406,7 @@ export default async function OrdenPage({
           </FormSimple>
         ) : (
           <dl className="kv">
-            <dt>Kilometraje</dt><dd className="num">{o.kilometraje_ingreso?.toLocaleString("es-MX") ?? "—"}</dd>
+            <dt>Kilometraje</dt><dd className="num">{o.kilometraje_ingreso?.toLocaleString("es-PE") ?? "—"}</dd>
             <dt>Combustible</dt><dd>{o.nivel_combustible != null ? `${o.nivel_combustible}%` : "—"}</dd>
             <dt>Reporte</dt><dd>{o.diagnostico ?? "—"}</dd>
             <dt>Revisado</dt><dd>{Object.keys(checklist).join(", ") || "—"}</dd>

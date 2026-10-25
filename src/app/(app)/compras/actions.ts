@@ -50,7 +50,7 @@ export async function guardarProveedor(_: Estado, f: FormData): Promise<Estado> 
   const supabase = await createClient();
   if (id) {
     const { error } = await supabase.from("proveedores").update(datos).eq("id", id);
-    if (error) return { error: error.code === "23505" ? "Ya hay otro proveedor con ese RFC/RUC." : mensajeError(error) };
+    if (error) return { error: error.code === "23505" ? "Ya hay otro proveedor con ese RUC." : mensajeError(error) };
     revalidatePath(`/compras/proveedores/${id}`);
     revalidatePath("/compras/proveedores");
     return { ok: "Proveedor guardado." };
@@ -59,7 +59,7 @@ export async function guardarProveedor(_: Estado, f: FormData): Promise<Estado> 
   const { data: mismo } = await supabase.from("proveedores").select("id").ilike("nombre", nombre).limit(1).maybeSingle();
   if (mismo) return { error: `Ya existe “${nombre}”. Ábrelo en la lista para completar sus datos.` };
   const { data, error } = await supabase.from("proveedores").insert(datos).select("id").single();
-  if (error) return { error: error.code === "23505" ? "Ya hay otro proveedor con ese RFC/RUC." : mensajeError(error) };
+  if (error) return { error: error.code === "23505" ? "Ya hay otro proveedor con ese RUC." : mensajeError(error) };
   revalidatePath("/compras/proveedores");
   redirect(`/compras/proveedores/${data.id}`);
 }

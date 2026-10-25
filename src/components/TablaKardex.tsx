@@ -3,10 +3,10 @@ import { dinero } from "@/lib/fechas";
 import { saldoDe, type FilaKardex, type ModoSaldo } from "@/lib/kardex";
 
 const n = (x: number | null | undefined, dec = 3) =>
-  x == null ? "—" : Number(x).toLocaleString("es-MX", { maximumFractionDigits: dec });
+  x == null ? "—" : Number(x).toLocaleString("es-PE", { maximumFractionDigits: dec });
 
 function fechaCorta(iso: string, tz: string) {
-  return new Intl.DateTimeFormat("es-MX", { timeZone: tz, day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso));
+  return new Intl.DateTimeFormat("es-PE", { timeZone: tz, day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso));
 }
 
 // Kardex con método de costo promedio ponderado: entradas, salidas y saldo en unidades y en valor

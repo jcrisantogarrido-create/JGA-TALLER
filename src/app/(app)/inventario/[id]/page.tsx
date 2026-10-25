@@ -86,7 +86,7 @@ export default async function ArticuloPage({
       ))}
 
       <div className="stats">
-        <div className="stat"><b>{Number(st?.stock ?? 0).toLocaleString("es-MX")}</b><span>Existencia en {sucursal.nombre} ({art.unidad})</span></div>
+        <div className="stat"><b>{Number(st?.stock ?? 0).toLocaleString("es-PE")}</b><span>Existencia en {sucursal.nombre} ({art.unidad})</span></div>
         <div className="stat"><b>{dinero(art.costo_promedio)}</b><span>Costo promedio · último {dinero(art.ultimo_costo)}</span></div>
         <div className="stat"><b>{dinero(st?.valor)}</b><span>Valor a costo</span></div>
         <div className="stat"><b>{dinero(art.precio_venta)}</b><span>Precio de venta{Number(art.costo_promedio) > 0 && ` · margen ${Math.round((1 - Number(art.costo_promedio) / Number(art.precio_venta || 1)) * 100)}%`}</span></div>
@@ -107,7 +107,7 @@ export default async function ArticuloPage({
                     {e.ubicaciones.descripcion && <span className="muted"> · {e.ubicaciones.descripcion}</span>}
                   </span>
                   <Link className="num" href={`/inventario/${id}?ubicacion=${e.ubicacion_id}`} style={{ fontWeight: 600 }}>
-                    {Number(e.cantidad).toLocaleString("es-MX")} {art.unidad}
+                    {Number(e.cantidad).toLocaleString("es-PE")} {art.unidad}
                   </Link>
                 </li>
               ))}

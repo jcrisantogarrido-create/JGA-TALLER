@@ -9,7 +9,7 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
   const { error } = await searchParams;
   const sucursal = await sucursalActiva(perfil);
   const supabase = await createClient();
-  const tz = sucursal?.zona_horaria ?? "America/Mexico_City";
+  const tz = sucursal?.zona_horaria ?? "America/Lima";
   const hoy = fechaLocal(new Date(), tz);
   const desde = localAInstante(hoy, "00:00", tz).toISOString();
   const hasta = localAInstante(sumarDias(hoy, 1), "00:00", tz).toISOString();

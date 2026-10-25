@@ -33,7 +33,7 @@ export default async function PlantillasPage() {
             <input type="hidden" name="sucursal_id" value={s.id} />
             <div className="field" style={{ maxWidth: 280 }}>
               <label htmlFor="pref">{s.nombre}: lada sin “+”</label>
-              <input id="pref" name="prefijo_telefono" inputMode="numeric" defaultValue={s.prefijo_telefono} placeholder="52 México, 51 Perú" />
+              <input id="pref" name="prefijo_telefono" inputMode="numeric" defaultValue={s.prefijo_telefono} placeholder="51" />
             </div>
           </FormSimple>
           <p className="muted" style={{ fontSize: 13 }}>Se antepone a los teléfonos de clientes que no la tengan. Los números escritos con “+” se usan tal cual.</p>

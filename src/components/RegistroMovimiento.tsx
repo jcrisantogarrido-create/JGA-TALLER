@@ -10,11 +10,11 @@ import {
   type ArticuloEscaneado,
 } from "@/app/(app)/inventario/actions";
 import EscanerCamara from "./EscanerCamara";
+import { dinero } from "@/lib/fechas";
 
 type Ubicacion = { id: string; codigo: string };
 type Modo = TipoMovimiento | "transferencia";
 
-const dinero = (n: number) => new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(n);
 
 // Registro de entradas, salidas, ajustes y transferencias.
 // Con `articuloFijo` trabaja sobre un artículo; sin él, empieza escaneando un código.

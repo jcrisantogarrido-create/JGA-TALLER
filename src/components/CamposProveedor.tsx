@@ -4,7 +4,7 @@ export default function CamposProveedor({ p = {} }: { p?: Record<string, unknown
   return (
     <div className="fields">
       <div className="field wide"><label htmlFor="pv-nombre">Nombre</label><input id="pv-nombre" name="nombre" required defaultValue={v("nombre")} placeholder="Refaccionaria del Norte" /></div>
-      <div className="field"><label htmlFor="pv-doc">RFC / RUC</label><input id="pv-doc" name="documento_fiscal" defaultValue={v("documento_fiscal")} /></div>
+      <div className="field"><label htmlFor="pv-doc">RUC</label><input id="pv-doc" name="documento_fiscal" defaultValue={v("documento_fiscal")} /></div>
       <div className="field"><label htmlFor="pv-contacto">Contacto</label><input id="pv-contacto" name="contacto" defaultValue={v("contacto")} placeholder="Nombre del vendedor" /></div>
       <div className="field"><label htmlFor="pv-tel">Teléfono / WhatsApp</label><input id="pv-tel" name="telefono" type="tel" defaultValue={v("telefono")} /></div>
       <div className="field"><label htmlFor="pv-email">Correo</label><input id="pv-email" name="email" type="email" defaultValue={v("email")} /></div>

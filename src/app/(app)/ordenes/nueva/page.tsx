@@ -107,7 +107,7 @@ export default async function NuevaOrdenPage({
           <div className="fields">
             <div className="field">
               <label htmlFor="o-km">Kilometraje</label>
-              <input id="o-km" name="kilometraje_ingreso" inputMode="numeric" placeholder={v.kilometraje_actual != null ? `Último: ${v.kilometraje_actual.toLocaleString("es-MX")}` : "Ej. 45200"} />
+              <input id="o-km" name="kilometraje_ingreso" inputMode="numeric" placeholder={v.kilometraje_actual != null ? `Último: ${v.kilometraje_actual.toLocaleString("es-PE")}` : "Ej. 45200"} />
             </div>
             <div className="field">
               <label htmlFor="o-comb">Combustible</label>

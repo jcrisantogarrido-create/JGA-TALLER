@@ -1666,11 +1666,17 @@ create function contar_segmento(p_segmento uuid) returns bigint
 language sql stable as $$ select count(*) from clientes_en_segmento(p_segmento) $$;
 grant execute on function contar_segmento(uuid), clientes_en_segmento(uuid) to authenticated;
 
+-- El taller está en Perú: hora de Lima y lada 51 para WhatsApp (la moneda se muestra en soles desde la app).
+alter table sucursales alter column zona_horaria set default 'America/Lima';
+alter table sucursales alter column prefijo_telefono set default '51';
+update sucursales set zona_horaria = 'America/Lima', prefijo_telefono = '51'
+ where zona_horaria = 'America/Mexico_City';
+
 -- Datos iniciales de ejemplo: una sucursal, sus bahías y un catálogo básico de servicios.
 -- Ajusta nombres, precios y horarios a tu taller antes de usarlo en producción.
 
 insert into sucursales (id, nombre, direccion, zona_horaria) values
-  ('00000000-0000-4000-8000-000000000001', 'Matriz', 'Dirección del taller', 'America/Mexico_City')
+  ('00000000-0000-4000-8000-000000000001', 'Matriz', 'Dirección del taller', 'America/Lima')
 on conflict do nothing;
 
 insert into bahias (sucursal_id, nombre, tipo) values

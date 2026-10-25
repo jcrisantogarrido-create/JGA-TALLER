@@ -95,7 +95,7 @@ export async function guardarPlantilla(_: Estado, f: FormData): Promise<Estado> 
 export async function guardarPrefijo(_: Estado, f: FormData): Promise<Estado> {
   await requierePerfil(["admin", "gerente"]);
   const prefijo = (txt(f, "prefijo_telefono") ?? "").replace(/\D/g, "");
-  if (!prefijo || prefijo.length > 4) return { error: "Escribe solo la lada del país, por ejemplo 52 (México) o 51 (Perú)." };
+  if (!prefijo || prefijo.length > 4) return { error: "Escribe solo la lada del país, por ejemplo 51 (Perú)." };
   const supabase = await createClient();
   const { error } = await supabase.from("sucursales").update({ prefijo_telefono: prefijo }).eq("id", String(f.get("sucursal_id")));
   if (error) return { error: mensajeError(error) };

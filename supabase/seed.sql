@@ -2,7 +2,7 @@
 -- Ajusta nombres, precios y horarios a tu taller antes de usarlo en producción.
 
 insert into sucursales (id, nombre, direccion, zona_horaria) values
-  ('00000000-0000-4000-8000-000000000001', 'Matriz', 'Dirección del taller', 'America/Mexico_City')
+  ('00000000-0000-4000-8000-000000000001', 'Matriz', 'Dirección del taller', 'America/Lima')
 on conflict do nothing;
 
 insert into bahias (sucursal_id, nombre, tipo) values

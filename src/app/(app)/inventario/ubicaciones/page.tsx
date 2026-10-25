@@ -62,7 +62,7 @@ export default async function UbicacionesPage({ searchParams }: { searchParams: 
                 <li key={u.id} style={{ opacity: u.activa ? 1 : 0.55 }}>
                   <div className="row" style={{ justifyContent: "space-between" }}>
                     <span className="row"><b className="mono">{u.codigo}</b>{u.descripcion && <span className="muted">{u.descripcion}</span>}{!u.activa && <span className="chip">Inactiva</span>}</span>
-                    <span className="muted num" style={{ fontSize: 13 }}>{stock.toLocaleString("es-MX")} unidades</span>
+                    <span className="muted num" style={{ fontSize: 13 }}>{stock.toLocaleString("es-PE")} unidades</span>
                   </div>
                   <details>
                     <summary className="btn small">Editar</summary>

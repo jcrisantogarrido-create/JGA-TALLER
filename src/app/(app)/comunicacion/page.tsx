@@ -53,7 +53,7 @@ export default async function ComunicacionPage() {
     supabase.from("comunicaciones").select("id, canal, direccion, asunto, contenido, ocurrido_en, cliente_id, clientes(nombre, apellidos), perfiles(nombre)").order("ocurrido_en", { ascending: false }).limit(30),
   ]);
   const P = new Map(((plantillas as { clave: string; asunto: string | null; texto: string }[]) ?? []).map((p) => [p.clave, p]));
-  const prefijo = (suc as { prefijo_telefono: string } | null)?.prefijo_telefono ?? "52";
+  const prefijo = (suc as { prefijo_telefono: string } | null)?.prefijo_telefono ?? "51";
   const rs = (recs as Rec[]) ?? [];
   const cs = (citas as unknown as Cita[]) ?? [];
   const ls = ((listas as unknown as Lista[]) ?? []).filter((o) => o.comunicaciones.length === 0);
@@ -93,7 +93,7 @@ export default async function ComunicacionPage() {
               const pl = P.get("recordatorio");
               const texto = rellenar(pl?.texto ?? "", {
                 nombre: r.cliente_nombre, placa: r.placa, vehiculo: `${r.marca} ${r.modelo}`, servicio: r.titulo.toLowerCase(),
-                fecha: r.motivo === "km" && r.vence_km ? `a los ${r.vence_km.toLocaleString("es-MX")} km` : r.vence_fecha ? fechaLarga(r.vence_fecha).toLowerCase() : "",
+                fecha: r.motivo === "km" && r.vence_km ? `a los ${r.vence_km.toLocaleString("es-PE")} km` : r.vence_fecha ? fechaLarga(r.vence_fecha).toLowerCase() : "",
               });
               return (
                 <li key={r.id}>
@@ -110,7 +110,7 @@ export default async function ComunicacionPage() {
                     </span>
                   </div>
                   <div className="meta">
-                    <span>{r.motivo === "km" ? `toca a los ${r.vence_km?.toLocaleString("es-MX")} km (último registro ${r.kilometraje_actual?.toLocaleString("es-MX")} km)` : `vence ${r.vence_fecha}`}</span>
+                    <span>{r.motivo === "km" ? `toca a los ${r.vence_km?.toLocaleString("es-PE")} km (último registro ${r.kilometraje_actual?.toLocaleString("es-PE")} km)` : `vence ${r.vence_fecha}`}</span>
                     <span>{CANALES[canal]}</span>
                     {r.telefono && <span className="num">{r.telefono}</span>}
                   </div>

@@ -33,7 +33,7 @@ export default async function ClientePage({
   const { id } = await params;
   const { aviso } = await searchParams;
   const supabase = await createClient();
-  const tz = (await sucursalActiva(perfil))?.zona_horaria ?? "America/Mexico_City";
+  const tz = (await sucursalActiva(perfil))?.zona_horaria ?? "America/Lima";
 
   const [{ data: cliente }, { data: vehiculos }, { data: historial }, { data: citas }, { data: comunicaciones }, { data: recordatorios }, { data: metricas }] =
     await Promise.all([
@@ -107,7 +107,7 @@ export default async function ClientePage({
                   <div className="meta">
                     <span>{TIPOS_VEHICULO[v.tipo]}</span>
                     {v.color && <span>{v.color}</span>}
-                    {v.kilometraje_actual != null && <span className="num">{v.kilometraje_actual.toLocaleString("es-MX")} km</span>}
+                    {v.kilometraje_actual != null && <span className="num">{v.kilometraje_actual.toLocaleString("es-PE")} km</span>}
                     {v.vin && <span className="mono">VIN {v.vin}</span>}
                   </div>
                 </li>
@@ -160,7 +160,7 @@ export default async function ClientePage({
                       <div className="meta">
                         {r.vehiculos && <span className="placa">{r.vehiculos.placa}</span>}
                         {r.vence_fecha && <span>vence {r.vence_fecha}</span>}
-                        {r.vence_km && <span className="num">o a {r.vence_km.toLocaleString("es-MX")} km</span>}
+                        {r.vence_km && <span className="num">o a {r.vence_km.toLocaleString("es-PE")} km</span>}
                         <span>{r.estado}</span>
                       </div>
                     </li>
@@ -188,7 +188,7 @@ export default async function ClientePage({
               <tbody>
                 {hs.map((h, i) => (
                   <tr key={`${h.orden_id}-${i}`}>
-                    <td className="num">{fechaHora(h.recibido_en, tz)}<div className="muted mono"><Link href={`/ordenes/${h.orden_id}`}>OT {h.folio}</Link>{h.kilometraje_ingreso != null && ` · ${h.kilometraje_ingreso.toLocaleString("es-MX")} km`}</div></td>
+                    <td className="num">{fechaHora(h.recibido_en, tz)}<div className="muted mono"><Link href={`/ordenes/${h.orden_id}`}>OT {h.folio}</Link>{h.kilometraje_ingreso != null && ` · ${h.kilometraje_ingreso.toLocaleString("es-PE")} km`}</div></td>
                     <td><span className="placa">{h.placa}</span></td>
                     <td><span className="chip">{h.categoria}</span></td>
                     <td>{h.trabajo}</td>

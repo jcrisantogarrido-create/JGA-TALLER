@@ -38,19 +38,19 @@ export function minutosDelDia(instante: Date, tz: string): number {
 }
 
 export function hora(instante: Date | string, tz: string): string {
-  return new Intl.DateTimeFormat("es-MX", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(instante));
+  return new Intl.DateTimeFormat("es-PE", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(instante));
 }
 
 export function fechaLarga(fecha: string): string {
   const [y, m, d] = fecha.split("-").map(Number);
-  const texto = new Intl.DateTimeFormat("es-MX", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(
+  const texto = new Intl.DateTimeFormat("es-PE", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(
     new Date(Date.UTC(y, m - 1, d)),
   );
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 export function fechaHora(instante: string | Date, tz: string): string {
-  return new Intl.DateTimeFormat("es-MX", {
+  return new Intl.DateTimeFormat("es-PE", {
     timeZone: tz,
     day: "numeric",
     month: "short",
@@ -67,5 +67,5 @@ export function sumarDias(fecha: string, dias: number): string {
 }
 
 export function dinero(n: number | string | null | undefined): string {
-  return new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN" }).format(Number(n ?? 0));
+  return new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(Number(n ?? 0));
 }

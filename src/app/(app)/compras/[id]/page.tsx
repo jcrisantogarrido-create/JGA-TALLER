@@ -55,7 +55,7 @@ export default async function PedidoPage({ params, searchParams }: { params: Pro
   ]);
   const lineas = (lineasData as unknown as Linea[]) ?? [];
   const total = lineas.reduce((s, l) => s + Number(l.cantidad) * Number(l.costo_unitario), 0);
-  const tz = oc.sucursales?.zona_horaria ?? "America/Mexico_City";
+  const tz = oc.sucursales?.zona_horaria ?? "America/Lima";
 
   let articulos: ArticuloCompra[] = [];
   if (catalogo) {

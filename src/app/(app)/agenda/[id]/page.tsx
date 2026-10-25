@@ -52,7 +52,7 @@ export default async function CitaPage({
     tecnico: { nombre: string } | null; creador: { nombre: string } | null; bahias: { nombre: string } | null;
     sucursales: { nombre: string; zona_horaria: string } | null;
   };
-  const tz = c.sucursales?.zona_horaria ?? (await sucursalActiva(perfil))?.zona_horaria ?? "America/Mexico_City";
+  const tz = c.sucursales?.zona_horaria ?? (await sucursalActiva(perfil))?.zona_horaria ?? "America/Lima";
   const fecha = fechaLocal(new Date(c.inicio), tz);
 
   let acciones = TRANSICIONES_CITA[c.estado];
@@ -81,7 +81,7 @@ export default async function CitaPage({
             <dd>
               {c.vehiculos && <span className="placa">{c.vehiculos.placa}</span>} {c.vehiculos?.marca} {c.vehiculos?.modelo} {c.vehiculos?.anio}
             </dd>
-            {c.vehiculos?.kilometraje_actual != null && (<><dt>Último km</dt><dd className="num">{c.vehiculos.kilometraje_actual.toLocaleString("es-MX")}</dd></>)}
+            {c.vehiculos?.kilometraje_actual != null && (<><dt>Último km</dt><dd className="num">{c.vehiculos.kilometraje_actual.toLocaleString("es-PE")}</dd></>)}
             <dt>Cliente</dt>
             <dd>{c.clientes && <Link href={`/clientes/${c.clientes.id}`}>{c.clientes.nombre} {c.clientes.apellidos ?? ""}</Link>}</dd>
             <dt>Teléfono</dt>

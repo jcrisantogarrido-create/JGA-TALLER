@@ -14,7 +14,7 @@ type Servicio = {
 };
 
 const fmtHora = (iso: string, tz: string) =>
-  new Intl.DateTimeFormat("es-MX", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso));
+  new Intl.DateTimeFormat("es-PE", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(iso));
 
 export default function NuevaCitaForm({
   sucursal,

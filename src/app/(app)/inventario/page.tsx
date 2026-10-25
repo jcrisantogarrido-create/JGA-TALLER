@@ -119,7 +119,7 @@ export default async function InventarioPage({
                     <div className="muted mono">{a.sku}{a.codigo_barras && ` · ${a.codigo_barras}`}</div>
                   </td>
                   <td>{a.categoria ?? "—"}<div className="muted">{a.marca ?? ""}</div></td>
-                  <td className="num" style={{ textAlign: "right", fontWeight: 600 }}>{Number(a.stock).toLocaleString("es-MX")} <span className="muted" style={{ fontWeight: 400 }}>{a.unidad}</span></td>
+                  <td className="num" style={{ textAlign: "right", fontWeight: 600 }}>{Number(a.stock).toLocaleString("es-PE")} <span className="muted" style={{ fontWeight: 400 }}>{a.unidad}</span></td>
                   <td className="num" style={{ textAlign: "right" }}>{a.punto_reorden ?? "—"}</td>
                   <td><span className={`chip ${a.estado}`}>{ESTADOS_STOCK[a.estado]}</span></td>
                   <td className="num" style={{ textAlign: "right" }}>{dinero(a.costo_promedio)}</td>

@@ -30,7 +30,7 @@ export default async function CampanaPage({ params }: { params: Promise<{ id: st
     : { data: [] };
   const cs = (clientes as Cli[]) ?? [];
   const ya = new Set(((enviados as { cliente_id: string }[]) ?? []).map((e) => e.cliente_id));
-  const prefijo = (suc as { prefijo_telefono: string } | null)?.prefijo_telefono ?? "52";
+  const prefijo = (suc as { prefijo_telefono: string } | null)?.prefijo_telefono ?? "51";
   const abierta = c.estado === "enviando" || c.estado === "borrador";
   const correos = cs.filter((x) => x.email).map((x) => x.email).join(", ");
 

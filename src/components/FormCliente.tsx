@@ -73,7 +73,7 @@ export default function FormCliente({
           <input id="email" name="email" type="email" defaultValue={v(inicial.email)} />
         </div>
         <div className="field">
-          <label htmlFor="documento_fiscal">RFC / documento fiscal</label>
+          <label htmlFor="documento_fiscal">RUC / DNI</label>
           <input id="documento_fiscal" name="documento_fiscal" autoCapitalize="characters" defaultValue={v(inicial.documento_fiscal)} />
         </div>
         <div className="field">

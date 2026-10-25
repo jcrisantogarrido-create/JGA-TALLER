@@ -1,6 +1,6 @@
 # Taller JGA
 
-Sistema de gestión para taller mecánico y detailing: clientes y vehículos, agenda sin choques, órdenes de trabajo, inventario y reportes. Hecho con Next.js 15 y Supabase.
+Sistema de gestión para taller mecánico y detailing: clientes y vehículos, agenda sin choques, órdenes de trabajo, inventario y reportes. Hecho con Next.js 15 y Supabase. Configurado para Perú: soles (S/), hora de Lima y lada 51.
 
 ## Qué incluye esta primera entrega
 
