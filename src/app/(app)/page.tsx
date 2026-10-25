@@ -57,7 +57,7 @@ export default async function InicioPage({ searchParams }: { searchParams: Promi
         <div className="stat"><b>{enCurso}</b><span>En curso</span></div>
         <Link className="stat" href="/ordenes" style={{ textDecoration: "none", color: "inherit" }}><b>{ordenes ?? 0}</b><span>{perfil.rol === "tecnico" ? "Tus órdenes abiertas" : "Vehículos en el taller"}</span></Link>
         {perfil.rol !== "tecnico" && <div className="stat"><b>{recordatorios ?? 0}</b><span>Recordatorios por enviar</span></div>}
-        {esGestion && <div className="stat"><b>{alertas ?? 0}</b><span>Alertas de stock</span></div>}
+        {esGestion && <Link className="stat" href="/compras" style={{ textDecoration: "none", color: "inherit" }}><b style={{ color: alertas ? "var(--warn)" : undefined }}>{alertas ?? 0}</b><span>Artículos por reabastecer</span></Link>}
         {perfil.rol !== "tecnico" && <div className="stat"><b>{clientes ?? 0}</b><span>Clientes activos</span></div>}
       </div>
 

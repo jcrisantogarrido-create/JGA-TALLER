@@ -45,7 +45,7 @@ export async function buscarHuecos(params: {
   fecha: string;
   duracionMin: number;
   tipoBahia: string | null;
-}): Promise<{ huecos?: Hueco[]; error?: string }> {
+}): Promise<{ huecos?: Hueco[]; error?: string; aviso?: string }> {
   await requierePerfil(["admin", "gerente", "recepcion"]);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(params.fecha)) return { error: "Elige una fecha." };
   const supabase = await createClient();
@@ -57,7 +57,29 @@ export async function buscarHuecos(params: {
   });
   if (error) return { error: mensajeError(error) };
   const ahora = Date.now();
-  return { huecos: ((data as Hueco[]) ?? []).filter((h) => new Date(h.inicio).getTime() > ahora) };
+  const huecos = ((data as Hueco[]) ?? []).filter((h) => new Date(h.inicio).getTime() > ahora);
+  if (huecos.length > 0) return { huecos };
+  return { huecos, aviso: await motivoSinHuecos(supabase, params) };
+}
+
+const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
+// Explica por qué no hay horarios: sin técnicos, sin turno ese día, sin bahía del tipo o agenda llena
+async function motivoSinHuecos(supabase: Awaited<ReturnType<typeof createClient>>, p: { sucursalId: string; fecha: string; tipoBahia: string | null }) {
+  const dia = new Date(`${p.fecha}T12:00:00Z`).getUTCDay();
+  const [{ data: tecnicos }, { count: bahias }] = await Promise.all([
+    supabase.from("perfiles").select("id, horarios_tecnico(dia_semana)").eq("rol", "tecnico").eq("activo", true).or(`sucursal_id.eq.${p.sucursalId},sucursal_id.is.null`),
+    (() => {
+      let q = supabase.from("bahias").select("id", { count: "exact", head: true }).eq("sucursal_id", p.sucursalId).eq("activa", true);
+      if (p.tipoBahia) q = q.eq("tipo", p.tipoBahia);
+      return q;
+    })(),
+  ]);
+  const ts = (tecnicos as { id: string; horarios_tecnico: { dia_semana: number }[] }[]) ?? [];
+  if (ts.length === 0) return "sin-tecnicos";
+  if (!ts.some((t) => t.horarios_tecnico.some((h) => h.dia_semana === dia))) return `sin-turno:${DIAS[dia]}`;
+  if (!bahias) return "sin-bahia";
+  return "llena";
 }
 
 export type NuevaCita = {

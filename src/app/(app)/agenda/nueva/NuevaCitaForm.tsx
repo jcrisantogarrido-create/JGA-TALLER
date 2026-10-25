@@ -47,6 +47,7 @@ export default function NuevaCitaForm({
   const [motivo, setMotivo] = useState("");
   const [canal, setCanal] = useState("llamada");
   const [error, setError] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | undefined>();
   const [buscando, startBuscar] = useTransition();
   const [cargandoHuecos, startHuecos] = useTransition();
   const [guardando, startGuardar] = useTransition();
@@ -89,6 +90,7 @@ export default function NuevaCitaForm({
       const r = await buscarHuecos({ sucursalId: sucursal.id, fecha, duracionMin: duracion, tipoBahia: tipoBahia || null });
       if (r.error) setError(r.error);
       setHuecos(r.huecos ?? []);
+      setAviso(r.aviso);
       setHoraSel(null);
       setOpcionSel(null);
     });
@@ -239,7 +241,17 @@ export default function NuevaCitaForm({
         {error && <div className="alert error" role="alert">{error}</div>}
 
         {huecos !== null && porHora.length === 0 && !error && (
-          <div className="empty">No hay horarios libres ese día con esa duración. Prueba otra fecha o una duración menor.</div>
+          <div className="empty">
+            {aviso === "sin-tecnicos" ? (
+              <>Todavía no hay técnicos registrados en esta sucursal. La agenda reparte las citas entre técnicos con turno. <a href="/equipo">Agrégalos en Equipo</a>.</>
+            ) : aviso?.startsWith("sin-turno:") ? (
+              <>Ningún técnico tiene turno el {aviso.slice(10)}. Elige otro día o <a href="/equipo">ajusta los turnos en Equipo</a>.</>
+            ) : aviso === "sin-bahia" ? (
+              <>No hay bahías activas del tipo “{tipoBahia}”. Elige otro tipo de bahía.</>
+            ) : (
+              <>Ese día ya está lleno para esa duración. Prueba otra fecha o una duración menor.</>
+            )}
+          </div>
         )}
 
         {porHora.length > 0 && (

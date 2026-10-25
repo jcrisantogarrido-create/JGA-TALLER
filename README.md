@@ -15,7 +15,10 @@ Sistema de gestión para taller mecánico y detailing: clientes y vehículos, ag
 - **Órdenes de trabajo**: recepción del vehículo (km, combustible, checklist), trabajos con técnico, reloj de horas reales desde el celular, piezas escaneadas que se descuentan del inventario y quedan en el kardex con el folio, cobro con varios pagos, utilidad por orden y entrega que completa la cita, crea recordatorios y suma puntos de fidelidad.
 - **Ubicaciones del almacén**: crear, renombrar y desactivar desde Inventario → Ubicaciones.
 
-Pendiente en las siguientes entregas: órdenes de compra, recordatorios automáticos por WhatsApp/SMS/email y tablero de KPI. La base de datos de todo eso ya está en la migración.
+- **Compras**: proveedores con los artículos que venden y su costo, alertas de stock bajo, pedidos sugeridos automáticos por proveedor preferido, envío por WhatsApp o correo y recepción escaneando (entrada al kardex con factura y costo promedio).
+- **Equipo**: dar rol, sucursal y turno a las cuentas creadas en Supabase Authentication, sin SQL. La agenda solo ofrece horarios de técnicos con turno.
+
+Pendiente en las siguientes entregas: recordatorios automáticos por WhatsApp/SMS/email y tablero de KPI. La base de datos de todo eso ya está en la migración.
 
 ## Puesta en marcha
 

@@ -208,3 +208,10 @@ table.kardex tfoot td { font-weight: 600; background: var(--bg); border-top: 2px
 .timeline { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13px; color: var(--muted); }
 .timeline b { color: var(--fg); font-weight: 500; }
 .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px 14px; }
+
+/* Compras */
+.chip.borrador { background: var(--bg); color: var(--muted); }
+.chip.enviada { background: var(--steel-soft); color: var(--steel); }
+.chip.parcial { background: var(--warn-soft); color: var(--warn); }
+.chip.recibida { background: var(--ok-soft); color: var(--ok); }
+input.mini { width: 90px; }

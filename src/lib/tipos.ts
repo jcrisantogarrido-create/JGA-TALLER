@@ -146,3 +146,13 @@ export const CHECKLIST_RECEPCION = [
   "Llanta de refacción", "Gato y llave", "Tapetes", "Radio / pantalla", "Tarjeta de circulación",
   "Golpes o rayones previos", "Testigos encendidos en tablero", "Objetos de valor",
 ] as const;
+
+export type EstadoOC = "borrador" | "enviada" | "parcial" | "recibida" | "cancelada";
+
+export const ESTADOS_OC: Record<EstadoOC, string> = {
+  borrador: "Borrador",
+  enviada: "Enviado al proveedor",
+  parcial: "Recibido en parte",
+  recibida: "Recibido completo",
+  cancelada: "Cancelado",
+};
